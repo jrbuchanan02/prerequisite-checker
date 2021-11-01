@@ -1,0 +1,4 @@
+courses ./data/courses.txt
+requisites ./data/requisites.txt
+semesters ./data/semesters.txt
+plans ./data/plans.txt

@@ -2,7 +2,7 @@ CPP_EX := .c++
 
 CPPSRC := $(wildcard ./src/*$(CPP_EX))
 
-ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a
+ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a -O3
 WINARGS := $(ARGS) -D__WINDOWS__ -o ./prerequisite-checker.exe
 WSLARGS := $(ARGS) -D__POSIX__ -o ./prerequisite-checker
 

@@ -1,92 +1,97 @@
-/**
- * \file Course.c++
- * \brief Defines the extraction method for Course
- * \author Joshua Buchanan
- * \copyright Joshua Buchanan (C) 2021; MIT License
- * \date 2021-10-31 (Happy Halloween!)
- */
-
 #include "Course.h++"
 
-#include "CourseReference.h++"
-#include "Requisite.h++"
+#include "Registry.h++"
 
+#include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-constexpr char const *const courseBegin = "course";
-constexpr char const *const reference = "ref";
-constexpr char const *const name = "name";
-constexpr char const *const desc = "desc";
-constexpr char const *const hours = "hours";
-constexpr char const *const honors = "honors";
-constexpr char const *const graduate = "graduate";
-constexpr char const *const requisitesBegin = "reqs";
-constexpr char const *const requisitesEnd = "endreqs";
-constexpr char const *const courseEnd = "endcourse";
-
-std::istream &operator >> ( std::istream &istream , Course &course ) {
-    // the format we are expecting
-    // course
-    //      ref {CourseReference}
-    //      name {Some Human Readable Name, ex. CS II for Majors}
-    //      ...1
-    //      desc {Some Human Readable Description, ex. In this class students will learn the concepts of Calculus in multiple variables}
-    //      ...2
-    //      hours {number -- that we can extract a double from}
-    //      [honors]
-    //      [graduate]
-    //      reqs
-    //          req ...
-    //          ...3
-    //      endreqs
-    // endcourse
-    // Where ...1 is any number of name keys, ...2 is any number of desc keys, and ...3 is any 
-    // number of req ... keys. 
-    // Note: keys may appear in any order
-    // we know that the course can only begin with the courseBegin keyword so we should
-    // just keep getting the line until we find it
+std::istream &Course::extract ( std::istream &istream ) {
     std::stringstream line;
     std::string temp;
+    // the course keyword begins with the keyword "course"
+    // so iterate until we find that
+    do {
+        std::getline ( istream , temp , '\xa' );
+        line = std::stringstream ( temp );
+        //std::cout << line.str ( ) << "\n";
+        line >> temp;
+        //std::cout << "\"" << temp << "\"\n";
+#ifdef __POSIX__ // on WSL2, opening the courses file goes horribly wrong..
+        std::cin.get ( );
+#endif
+    } while ( temp != "course" );
+    // now we iterate with only a few different possible keywords:
+    // we can have the course reference, "ref"
+    // we can have the course name (or part of it), "name"
+    // we can have the course description (or part of it), "desc"
+    // we can have the course requisites (or some of them), "reqs"
+    // we can have a flag (does not match any keyword)
+    // we can have the hours, "hours", followed by a double value.
+    // or we can find "endcourse" and be done
     do {
         std::getline ( istream , temp );
         line = std::stringstream ( temp );
         line >> temp;
-    } while ( temp != courseBegin );
-    // we know that the course can only end with the endcourse keyword, so just keep finding 
-    // keywords and getting the line until we find it
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
-        line >> temp;
-        // check for the keywords in the order they are declared in Course
-        if (temp == reference) {
-            line >> course.courseReference;
-        } else if  (temp == requisitesBegin) do {
-            // while we cannot find the requisitesEnd keyword, 
-            // keep adding requisites
-            std::getline ( istream , temp );
-            line = std::stringstream ( temp );
-            
-            if ( temp.find ( requisitesEnd ) != std::string::npos ) break;
-
-            course.requisites.push_back ( Requisite ( line ) );
-        } while (true);
-        else if (temp == name ) {
-            if ( course.name != "" ) course.name += " ";
-            course.name += line.str ( );
-        } else if ( temp == desc ) {
-            if (course.desc != "" ) course.desc += " ";
-            course.desc += line.str ( );
-        } else if (temp == honors ) {
-            course.honors = true;
-        } else if (temp == graduate ) {
-            course.graduate = true;
-        } else if ( temp == hours ) {
-            line >> course.hours;
+        //std::cout << "Keyword: " << temp << std::endl;
+        if ( temp == "endcourse" ) {
+            break;
+        } else if ( temp == "ref" ) {
+            grabReference ( line );
+        } else if ( temp == "name" ) {
+            if ( name != "" ) name += " ";
+            name += line.str ( ).substr ( line.str ( ).find ( temp ) + temp.size ( ) + 1 );
+        } else if ( temp == "desc" ) {
+            if ( desc != "" ) desc += " ";
+            desc += line.str ( ).substr ( line.str ( ).find ( temp ) + temp.size ( ) + 1 );
+        } else if ( temp == "reqs" ) {
+            // grab the reference
+            Reference found;
+            line >> found;
+            requisites.push_back ( found );
+        } else if ( temp == "hours" ) {
+            line >> hours;
+        } else {
+            addFlag ( temp );
         }
-    } while (temp != courseEnd );
+    } while ( true );
     return istream;
+}
+
+std::vector < Requisites *> const Course::resolveRequisites ( Registry const &withRegistry ) noexcept {
+    std::vector <Requisites *> output;
+    for ( Reference requisites : this->requisites ) {
+        output.push_back ( withRegistry.resolveRequisites ( requisites ) );
+    }
+    return output;
+}
+
+bool const Course::meetsRequisites ( std::vector < std::vector < Reference > > const &courses , Registry const &registry ) {
+    // this vector is orientated in semesters going from beginning (courses[0]) to end (courses.back())
+
+    // if there are no courses, we do not meet the prerequisites
+    for ( Reference requisiteGroup : requisites ) {
+        Requisites *prequisite = registry.resolveRequisites ( requisiteGroup );
+        bool met = false;
+        if (prequisite) {
+            for ( auto semester : courses ) {
+                for ( Reference course : semester ) {
+                    Course *pcourse = registry.resolveCourse ( course );
+                    // if we can find the course, then check if it meets the
+                    // requisite
+                    if ( pcourse ) {
+                        met = prequisite->meetsRequisite ( *pcourse );
+                    }
+                    // if we cannot find the course, then it does not meet the
+                    // requisite.
+                }
+            }
+        } else {
+            // TODO: insert some error condition
+        }
+        if (!met) return false;
+    }
+    return true;
 }

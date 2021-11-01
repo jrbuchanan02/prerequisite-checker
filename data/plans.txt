@@ -1,0 +1,6 @@
+plan
+    ref Current Plan
+    semester Incoming Credit EN 101 EN 102 TRGS HU--APLit
+    semester Incoming Credit SP 102 SP 201
+    
+endplan

@@ -1,0 +1,11 @@
+reqs
+    ref CS--Majors I
+    req pre CS 100
+    req pre CS 110
+    req pre RRS 102
+endreqs
+reqs
+    ref Calculus I
+    req pre MATH 125
+    req pre MATH 145
+endreqs

@@ -1,39 +1,30 @@
-/**
- * \file Plan.h++
- * \brief Defines what a Plan is
- * \author Joshua Buchanan
- * \copyright Joshua Buchanan (C) 2021; MIT License
- * \date 2021-10-31 (Happy Halloween!)
- */
 #pragma once
 
-#include "Semester.h++"
+class Registry; // fix Registry.h++ including this file
+
+#include "Reference.h++"
+#include "Referred.h++"
 
 #include <istream>
 #include <map>
+#include <sstream>
 #include <string>
+#include <vector>
 
-/**
- * \class Plan
- * \brief a plan for all semesters in College.
- * \author Joshua Buchanan
- */
-class Plan {
-private:
-    std::map < std::string , Semester > semesters;
-    std::string planName;
+class Plan : public Referred {
+    std::map < Reference , std::vector < Reference > > semesters;
+protected:
+    virtual std::istream &extract ( std::istream &istream ) override;
 public:
     Plan ( ) noexcept = default;
     Plan ( Plan const & ) noexcept = default;
-    Plan ( std::istream &istream ) { istream >> *this; }
-    Plan ( std::map < std::string , Semester > semesters , std::string planName ) noexcept :
-        semesters ( semesters ) , planName ( planName ) { }
-    ~Plan ( ) = default;
+    Plan ( Plan && ) noexcept = default;
+    Plan ( Reference const &reference , std::map < Reference , std::vector < Reference > > const &semesters ) noexcept : Referred ( reference ) , semesters ( semesters ) { }
+    virtual ~Plan ( ) = default;
 
-    std::string const &getName ( ) const noexcept { return planName; }
-    std::map < std::string , Semester > const &getSemesters ( ) const noexcept { return semesters; }
+    std::string const getPlanMessage ( Registry const & ) const noexcept;
 
-    Plan &operator = (Plan const & ) noexcept = default;
-
-    friend std::istream &operator >> ( std::istream & , Plan &);
+    Plan &operator = ( Plan const & ) noexcept = default;
+    Plan &operator = ( Plan && ) noexcept = default;
 };
+
