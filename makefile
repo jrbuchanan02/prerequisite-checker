@@ -4,7 +4,7 @@ CPPSRC := $(wildcard ./src/*$(CPP_EX))
 
 ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a -O3
 WINARGS := $(ARGS) -D__WINDOWS__ -o ./prerequisite-checker.exe
-WSLARGS := $(ARGS) -D__POSIX__ -o ./prerequisite-checker
+WSLARGS := $(ARGS) -D__POSIX__ -o ./prerequisite-checker.out
 
 # designed to work on my system that uses msys64
 windows:
