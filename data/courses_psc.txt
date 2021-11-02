@@ -1,0 +1,4 @@
+course
+    ref PSC 101
+    hours 3
+endcourse

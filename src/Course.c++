@@ -1,5 +1,6 @@
 #include "Course.h++"
 
+#include "ExtractionMethods.h++"
 #include "Registry.h++"
 
 #include <iostream>
@@ -13,16 +14,9 @@ std::istream &Course::extract ( std::istream &istream ) {
     std::string temp;
     // the course keyword begins with the keyword "course"
     // so iterate until we find that
-    do {
-        std::getline ( istream , temp , '\xa' );
-        line = std::stringstream ( temp );
-        //std::cout << line.str ( ) << "\n";
-        line >> temp;
-        //std::cout << "\"" << temp << "\"\n";
-#ifdef __POSIX__ // on WSL2, opening the courses file goes horribly wrong..
-        std::cin.get ( );
-#endif
-    } while ( temp != "course" );
+    if ( !extractToKeyword ( istream , "course" ) ) {
+        return istream;
+    }
     // now we iterate with only a few different possible keywords:
     // we can have the course reference, "ref"
     // we can have the course name (or part of it), "name"
@@ -68,30 +62,31 @@ std::vector < Requisites *> const Course::resolveRequisites ( Registry const &wi
     return output;
 }
 
-bool const Course::meetsRequisites ( std::vector < std::vector < Reference > > const &courses , Registry const &registry ) {
+bool const Course::meetsRequisites ( std::vector < std::vector < Reference > > const &courses , Registry const &registry , Reference &offending ) {
     // this vector is orientated in semesters going from beginning (courses[0]) to end (courses.back())
 
     // if there are no courses, we do not meet the prerequisites
     for ( Reference requisiteGroup : requisites ) {
-        Requisites *prequisite = registry.resolveRequisites ( requisiteGroup );
-        bool met = false;
-        if (prequisite) {
+        Requisites *prequisites = registry.resolveRequisites ( requisiteGroup );
+        if ( prequisites ) {
+            bool foundMatch = false;
+
             for ( auto semester : courses ) {
                 for ( Reference course : semester ) {
                     Course *pcourse = registry.resolveCourse ( course );
-                    // if we can find the course, then check if it meets the
-                    // requisite
                     if ( pcourse ) {
-                        met = prequisite->meetsRequisite ( *pcourse );
+                        bool matchState = prequisites->meetsRequisite ( *pcourse );
+                        if ( matchState ) {
+                            std::cout << course << " matches " << getReference ( ) << "\n";
+                        }
+                        foundMatch |= matchState;
                     }
-                    // if we cannot find the course, then it does not meet the
-                    // requisite.
                 }
             }
-        } else {
-            // TODO: insert some error condition
+            offending = requisiteGroup;
+            if (!foundMatch) return false;
         }
-        if (!met) return false;
     }
-    return true;
+
+    return true; // if we are here, either all requisites were met, or there are no requisites
 }

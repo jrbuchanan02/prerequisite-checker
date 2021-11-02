@@ -1,26 +1,32 @@
+
 reqs
-    ref FreshmanComp I
-    req pre EN 101
+    ref (Pre)Calculus Trigonometry
+    req pre MATH 113
+    req pre con MATH 115
+    req pre con MATH 125
+    req pre con MATH 126
+    req pre con MATH 145
+    req pre con MATH 146
 endreqs
 
 reqs
-    ref IntroSpanish I
-    req pre SP 101
+    ref Intermediate Algebra
+    req pre MATH 100
 endreqs
 
 reqs
-    ref IntroSpanish II
-    req pre SP 102
+    ref Introductory Algebra
+    req pre MATH 005
 endreqs
 
 reqs
-    ref CS--Majors I
-    req pre CS 100
-    req pre CS 110
-    req pre RRS 102
+    ref Precalculus Mathematics
+    req pre MATH 113
+    req pre MATH 112
+    req pre MATH 115
 endreqs
+
 reqs
-    ref Calculus I
-    req pre MATH 125
-    req pre MATH 145
+    ref Precalculus Algebra
+    req pre MATH 112
 endreqs

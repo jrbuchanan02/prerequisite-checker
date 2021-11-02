@@ -1,0 +1,14 @@
+course
+    ref CS 100
+    hours 4
+endcourse
+
+course
+    ref CS 101
+    hours 4
+endcourse
+
+course
+    ref CS 201
+    hours 4
+endcourse

@@ -1,0 +1,5 @@
+course
+    ref ENGR 123
+    hours 3
+    Honors
+endcourse

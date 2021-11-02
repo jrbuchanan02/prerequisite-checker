@@ -1,0 +1,16 @@
+course
+    ref UH 100
+    hours 2
+    Honors
+endcourse
+
+course
+    ref UH 2@@
+    hours 3
+endcourse
+
+course
+    ref UH 200
+    hours 2
+    Honors
+endcourse

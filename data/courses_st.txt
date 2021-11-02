@@ -1,0 +1,4 @@
+course
+    ref ST 260
+    hours 3
+endcourse

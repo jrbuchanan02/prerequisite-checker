@@ -6,6 +6,7 @@
 #include "Requisite.h++"
 #include "Plan.h++"
 
+#include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
@@ -28,9 +29,11 @@ std::istream &Requisites::extract ( std::istream &istream ) {
         if ( temp == "ref" ) {
             grabReference ( line );
         } else if ( temp == "req" ) {
-            Requisite requisite;
-            line >> requisite;
-            requisites.push_back ( requisite );
+            while (!line.eof ( ) ) {
+                Requisite requisite;
+                line >> requisite;
+                requisites.push_back ( requisite );
+            }
         }
     } while ( temp != "endreqs" );
     return istream;
@@ -39,6 +42,7 @@ std::istream &Requisites::extract ( std::istream &istream ) {
 bool const Requisites::meetsRequisite ( Course const &course ) const noexcept {
 
     for ( Requisite requisite : requisites ) {
+        std::cout << "Checking if " << requisite.getCourse ( ) << " is " << course.getReference ( ) << "\n";
         if (requisite.getCourse ( ) == course.getReference ( ) ) {
             return true;
         }

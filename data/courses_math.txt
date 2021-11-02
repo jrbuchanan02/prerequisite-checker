@@ -1,0 +1,137 @@
+course
+    ref MATH 005
+    name Introductory Algebra
+    desc Brief review of arithmetic operations and basic algebraic concepts:
+    desc factoring, operations with polynomials and rational expressions, linear
+    desc equations and word problems, graphing linear equations, simplification
+    desc of expressions involving radicals or negative exponents, and elementary
+    desc work with quadratic equations. Grades are reported as pass/fail.
+    hours 3
+endcourse
+
+course
+    ref MATH 100
+    name Intermediate Algebra
+    desc Prerequisites: Placement and two units of college-preparatory
+    desc mathematics; if a student has previously been placed in MATH 005, a
+    desc grade of "C-" or higher in MATH 005 is required. Intermediate-level
+    desc course including work on functions, graphs, linear equations and
+    desc inequalities, quadratic equations, systems of equations, and operations
+    desc with exponents and radicals. The solution of word problems is stressed.
+    desc NOT APPLICABLE to UA Core Curriculum mathematics requirement. Grades
+    desc are reported as A, B, C or NC (No Credit).
+    reqs Introductory Algebra
+    hours 3
+endcourse
+
+course
+    ref MATH 112
+    name Precalculus Algebra
+    desc A higher-level course emphasizing functions including polynomial
+    desc functions, rational functions, and the exponential and logarithmic
+    desc functions. Graphs of these functions are stressed. The course also
+    desc includes work on equations, inequalities, systems of equations, the
+    desc binomial theorem, and the complex and rational roots of polynomials.
+    desc Applications are stressed. Grades are reported as A, B, C or NC (No
+    desc Credit). Degree credit will not be granted for both MATH 115 and (MATH
+    desc 112 or MATH 113).
+    hours 3
+    reqs Intermediate Algebra
+    Mathematics
+endcourse
+
+course
+    ref MATH 113
+    name Precalculus Trigonometry
+    desc Continuation of MATH 112. The course includes study of trigonometric
+    desc functions, inverse trigonometric functions, trigonometric identities
+    desc and trigonometric equations. Complex numbers, De Moivre's Theorem,
+    desc polar coordinates, vectors and other topics in algebra are also
+    desc addressed, including conic sections, sequences and series. Grades are
+    desc reported as A, B, C or NC (No Credit). Degree credit will not be
+    desc granted for both MATH 115 and (MATH 112 or MATH 113).
+    hours 3
+    reqs Precalculus Algebra
+    Mathematics
+endcourse
+
+course
+    ref MATH 115
+    name Precalculus Algebra and Trigonometry
+    desc Properties and graphs of exponential, logarithmic, and trigonometric
+    desc functions are emphasized. Also includes trigonometric identities,
+    desc polynomial and rational functions, inequalities, systems of equations,
+    desc vectors, and polar coordinates. Grades are reported as A, B, C, or NC
+    desc (No credit). Degree credit will not be granted for both MATH 115 and
+    desc (MATH 112 or MATH 113).
+    hours 3
+    Mathematics
+endcourse
+
+course
+    ref MATH 125
+    name Calculus I
+    desc This is the first of three courses in the basic calculus sequence.
+    desc Topics include the limit of a function; the derivative of algebraic,
+    desc trigonometric, exponential, and logarithmic functions; and the definite
+    desc integral. Applications of the derivative are covered in detail,
+    desc including approximations of error using differentials, maxima and
+    desc minima problems, and curve sketching using calculus. There is also a
+    desc brief review of selected precalculus topics at the beginning of the
+    desc course. Degree credit will not be granted for both MATH 121 and MATH
+    desc 125 or MATH 145.
+    hours 4
+    reqs Precalculus Mathematics
+    Mathematics
+endcourse
+
+course
+    ref MATH 126
+    hours 4
+endcourse
+
+course
+    ref MATH 145
+    hours 4
+    name Honors Calculus I
+    desc This course covers the same material as MATH 125 but in a depth
+    desc appropriate for honors students. It is the first course in the three
+    desc part honors calculus sequence for students majoring in mathematics,
+    desc science or engineering. Topics include limits, continuity,
+    desc differentiation, applications of differentiation, and integration.
+    desc Applications of the derivative are covered in detail, including
+    desc approximation of errors using differentials, maxima and minima
+    desc problems, curve sketching, optimization problems, and Newton’s method.
+    desc Topics on integration include Riemann sums, properties of definite
+    desc integrals, integration by substitution and integrals involving
+    desc logarithmic exponential and trigonometric functions.
+    reqs Precalculus Mathematics
+    Honors
+    Mathematics
+endcourse
+
+course
+    ref MATH 237
+    hours 3
+endcourse
+
+course
+    ref MATH 238
+    hours 3
+endcourse
+
+course
+    ref MATH 247
+    hours 4
+    Honors
+endcourse
+
+course
+    ref MATH 301
+    hours 3
+endcourse
+
+course
+    ref MATH 355
+    hours 3
+endcourse

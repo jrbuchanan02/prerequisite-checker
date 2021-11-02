@@ -1,0 +1,19 @@
+course
+    ref PH 101
+    hours 4
+endcourse
+
+course
+    ref PH 105
+    hours 4
+endcourse
+
+course
+    ref PH 106
+    hours 4
+endcourse
+
+course
+    ref PH 253
+    hours 3
+endcourse

@@ -1,5 +1,7 @@
 #include "Semester.h++"
 
+#include "ExtractionMethods.h++"
+
 #include <istream>
 #include <sstream>
 #include <string>
@@ -9,11 +11,9 @@ std::istream &Semester::extract ( std::istream &istream ) {
     // semesters begin with the "semester" keyword
     std::stringstream line;
     std::string temp;
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
-        line >> temp;
-    } while ( temp != "semester" );
+    if (!extractToKeyword ( istream , "semester")) {
+        return istream;
+    }
     // we can have three values:
     // 1. endsemester (we end the creation of the semester)
     // 2. ref (the reference that the semester uses)

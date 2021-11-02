@@ -1,0 +1,144 @@
+course
+    ref ECE 121
+    hours 1
+endcourse
+
+course
+    ref ECE 225
+    hours 4
+endcourse
+
+course 
+    ref ECE 326
+    hours 3
+endcourse
+
+course
+    ref ECE 332
+    hours 4
+endcourse
+
+course
+    ref ECE 333
+    hours 4
+endcourse
+
+course
+    ref ECE 370
+    hours 3
+endcourse
+
+course
+    ref ECE 380
+    hours 4
+endcourse
+
+course
+    ref ECE 383
+    hours 4
+endcourse
+
+course
+    ref ECE 480
+    hours 3
+endcourse
+
+course
+    ref ECE 481
+    hours 1
+endcourse
+
+course
+    ref ECE 484
+    hours 3
+endcourse
+
+course
+    ref ECE 486
+    hours 3
+endcourse
+
+course
+    ref ECE 487
+    hours 1
+endcourse
+
+course
+    ref ECE 492
+    hours 2
+endcourse
+
+course
+    ref ECE 494
+    hours 2
+endcourse
+
+course
+    ref ECE 508
+    hours 3
+endcourse
+
+course
+    ref ECE 509
+    hours 1
+endcourse
+
+course
+    ref ECE 538
+    hours 3
+endcourse
+
+course
+    ref ECE 580
+    hours 3
+endcourse
+
+course
+    ref ECE 579
+    hours 3
+endcourse
+
+course
+    ref ECE 581
+    hours 1
+endcourse
+
+course
+    ref ECE 588
+    hours 3
+endcourse
+
+course
+    ref ECE 598
+    hours 6
+endcourse
+
+course
+    ref ECE 599
+    hours 6
+endcourse
+
+course
+    ref ECE GRADLVL-1
+    hours 3
+endcourse
+
+course
+    ref ECE GRADLVL-2
+    hours 3
+endcourse
+
+course
+    ref ECE GRADLVL-3
+    hours 3
+endcourse
+
+course
+    ref ECE RAEPAE-1
+    hours 3
+endcourse
+
+course
+    ref ECE RAEPAE-2
+    hours 3
+endcourse

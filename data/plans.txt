@@ -1,9 +1,23 @@
+
 plan
     ref Current Plan
-    semester Incoming Credit EN 101 EN 102 TRGS HU--APLit
+    semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
     semester Incoming Credit SP 102 SP 201
-    semester Incoming Credit HY 103 HY 104 HY 117 HY 118 EC 111 PSC 101
-    semester Incoming Credit MATH 125 MATH 126 ST 260
-    semester Incoming Credit PH 101 PH 105 PH 106 CH 105
-    semester Incoming Credit CS 100
+    semester Incoming Credit HY 117 HY 118 HY 103 HY 104
+    semester Incoming Credit EC 111 PSC 101
+    semester Incoming Credit ST 260 MATH 125 MATH 126
+    semester Incoming Credit CS 100 CH 101
+    semester Incoming Credit PH 105 PH 106
+
+    semester Freshman Fall CS 101 ECE 121 ENGR 123 MATH 247 UH 100
+    semester Freshman Spring MATH 238 MATH 301 ECE 380 UH 200 MATH 237 ENGR 191-001
+    
+    semester Sophomore Fall ECE 225 CS 201 ECE 383 MATH 355
+    semester Sophomore Spring ECE 370 ECE 332 ECE 480 ECE 481 ECE 486 ECE 487
+
+    semester Junior Fall ECE 484 ECE 333 ECE 580 ECE 581
+    semester Junior Spring ECE 326 ECE 508 ECE 509 ECE 538 ECE 588 PH 253
+
+    semester Senior Fall ECE 492 ECE 579
+    semester Senior Spring ECE 494 ECE 598 ECE 599
 endplan
