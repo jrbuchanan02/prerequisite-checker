@@ -1,11 +1,34 @@
 course
     ref EN 101
+    name English Composition
+    desc Introduction to rhetorical strategies, critical reading and thinking
+    desc skills, composing processes, sentence-level conventions, and 
+    desc reflection skills needed to participate successfully in the University 
+    desc of Alabama discourse community. Intended for native speakers of English.
+    desc Grades are reported as A, B, C, or NC (No Credit). A grade of C- or 
+    desc higher is required as a prerequisite for advancing to another English
+    desc course at The University of Alabama. Offered each semester and in 
+    desc summer school. EN 101 does not apply as credit to the English major or
+    desc minor.
     hours 3
+    FreshmanComposition
 endcourse
 
 course
     ref EN 102
+    name English Composition
+    desc Continuation of students’ practice in rhetorical strategies, critical 
+    desc reading and thinking skills, composing processes, sentence-level 
+    desc conventions, and reflection skills. The course also emphasizes 
+    desc university-level research and source usage techniques. Intended for 
+    desc native speakers of English. Grades are reported as A, B, C, or NC 
+    des (No Credit). A grade of C- or higher is required as a prerequisite for
+    desc advancing to another English course at The University of Alabama.
+    desc Offered each semester and in summer school. EN 102 does not apply as 
+    desc credit to the English major or minor. Prerequisite(s): EN 101.
+    reqs FreshmanComp I
     hours 3
+    FreshmanComposition
 endcourse
 
 course
@@ -15,10 +38,130 @@ endcourse
 
 course
     ref SP 102
+    name Introductory Spanish II
+    desc This is an introductory course to the Spanish language and Hispanic 
+    desc culture. Part of a two-course sequence, SP 101 and SP 102 are designed 
+    desc to develop: (i) basic communicative skills in Spanish as a foreign 
+    desc language; and (ii) general knowledge about culture in the 
+    desc Spanish-speaking world. Students should not expect this course to be
+    desc just about memorization of grammar and vocabulary. Although these 
+    desc aspects are necessary to achieve the aforementioned skills and 
+    desc knowledge, they are not the sole focus of this course.
+    reqs IntroSpanish I
     hours 4
+    ForeignLanguage
+    Humanities
 endcourse
 
 course
     ref SP 201
+    name Intermediate Spanish
+    desc This is an intermediate course to the Spanish language and Hispanic 
+    desc culture. Part of a two-course sequence, SP 201 and SP 202 are designed 
+    desc to develop: (i) continued communicative skills in Spanish as a second 
+    desc language; and (ii) additional knowledge about culture in the 
+    desc Spanish-speaking world. Do not expect this course to be just about 
+    desc memorization of grammar and vocabulary. Although these aspects are 
+    desc necessary to achieve the aforementioned skills and knowledge, they 
+    desc are not the sole focus of this course.
+    reqs IntroSpanish II
     hours 3
+endcourse
+
+course
+    ref HY 117
+    name World History to 1500
+    desc This course examines the political, economic, religious and social 
+    desc history of the world from the first civilizations that emerged around 
+    desc 3000 BC to about the year AD 1500. In this course we will discuss the 
+    desc creation of civilizations, the rise and fall of empires, and the 
+    desc similarities and differences between these various cultures with regard
+    desc to their development. As this is an introductory course to world history,
+    desc it is important to note that we will not be able to delve too deeply 
+    desc into any one topic.
+    hours 3
+    History
+endcourse
+
+course
+    ref HY 118
+    hours 3
+endcourse
+
+course
+    ref EC 111
+    hours 3
+endcourse
+
+course
+    ref PH 105
+    hours 4
+endcourse
+
+course
+    ref MATH 125
+    name Calculus I
+    hours 4
+endcourse
+
+course
+    ref MATH 145
+    name Calculus I (Honors)
+    hours 4
+    honors
+endcourse
+
+course
+    ref CS 100
+    hours 4
+endcourse
+
+course
+    ref ST 260
+    hours 3
+endcourse
+
+course
+    ref MATH 126
+    name Calculus II
+    desc Your personal Hell. 😉
+    hours 4
+    reqs Calculus I
+endcourse
+
+course
+    ref MATH 146
+    name Calculus II (Honors)
+    desc You naughty masoquist... 🤣
+    hours 4
+    reqs Calculus I
+endcourse
+
+course
+    ref PH 106
+    name Physics II (Calculus-based)
+    hours 4
+    reqs Physics I--Calculus
+    reqs Calculus II
+endcourse
+
+course
+    ref HY 103
+    hours 3
+endcourse
+
+course
+    ref HY 104
+    hours 3
+endcourse
+
+course
+    ref PSC 101
+    hours 3
+endcourse
+
+course
+    ref PH 101
+    hours 4
+    name Physics I
 endcourse

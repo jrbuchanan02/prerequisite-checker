@@ -47,13 +47,15 @@ std::string const Plan::getPlanMessage ( Registry const &registry ) const noexce
     for ( auto i = 0LLU; i < orderedSemesters.size ( ); i++ ) {
         if ( semesters.contains ( orderedSemesters [ i ] ) ) {
             currentAndPriorSemesters.push_back ( semesters.at ( orderedSemesters [ i ] ) );
-            for ( Reference course : semesters.at ( orderedSemesters [ i ] ) ) {
-                Course *pcourse = registry.resolveCourse ( course );
-                if ( !pcourse ) {
-                    return getReference ( ).getName ( ) + " fails becasue " + course.getName ( ) + " cannot be resolved.";
-                } else {
-                    if (!pcourse->meetsRequisites ( currentAndPriorSemesters , registry ) ) {
-                        return getReference ().getName () + " fails because " + course.getName ( ) + " has unmet prerequisites.";
+            if ( registry.resolveSemester ( orderedSemesters [ i ] )->isChecked ( ) ) {
+                for ( Reference course : semesters.at ( orderedSemesters [ i ] ) ) {
+                    Course *pcourse = registry.resolveCourse ( course );
+                    if ( !pcourse ) {
+                        return getReference ( ).getName ( ) + " fails becasue " + course.getName ( ) + " cannot be resolved.";
+                    } else {
+                        if ( !pcourse->meetsRequisites ( currentAndPriorSemesters , registry ) ) {
+                            return getReference ( ).getName ( ) + " fails because " + course.getName ( ) + " has unmet prerequisites.";
+                        }
                     }
                 }
             }

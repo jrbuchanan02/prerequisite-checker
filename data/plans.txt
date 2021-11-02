@@ -2,5 +2,8 @@ plan
     ref Current Plan
     semester Incoming Credit EN 101 EN 102 TRGS HU--APLit
     semester Incoming Credit SP 102 SP 201
-    
+    semester Incoming Credit HY 103 HY 104 HY 117 HY 118 EC 111 PSC 101
+    semester Incoming Credit MATH 125 MATH 126 ST 260
+    semester Incoming Credit PH 101 PH 105 PH 106 CH 105
+    semester Incoming Credit CS 100
 endplan

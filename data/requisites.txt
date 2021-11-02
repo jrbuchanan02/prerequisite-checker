@@ -1,4 +1,19 @@
 reqs
+    ref FreshmanComp I
+    req pre EN 101
+endreqs
+
+reqs
+    ref IntroSpanish I
+    req pre SP 101
+endreqs
+
+reqs
+    ref IntroSpanish II
+    req pre SP 102
+endreqs
+
+reqs
     ref CS--Majors I
     req pre CS 100
     req pre CS 110
