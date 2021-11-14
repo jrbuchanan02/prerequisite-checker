@@ -14,6 +14,11 @@ course
 endcourse
 
 course
+    ref ECE 327
+    hours 3
+endcourse
+
+course
     ref ECE 332
     hours 4
 endcourse

@@ -1,0 +1,35 @@
+
+course
+    ref AEM 201
+    name Statics
+    desc The study of forces, couples and resultants of force systems;
+    desc free-body diagrams; two- and three-dimensional equilibrium,
+    desc and problems involving friction; and centroids, center of gravity,
+    desc and distributed forces.
+    hours 3
+    reqs General Engineering
+    reqs Calculus IorII
+    reqs Physics-C IorII
+endcourse
+
+course
+    ref AEM 264
+    name Dynamics
+    desc Kinematics of particles and rigid bodies, Newton's laws of motion, and
+    desc principles of work-energy and impulse-momentum for particles and
+    desc rigid bodies.
+    hours 3
+    reqs Calculus II
+    reqs AEM Statics
+endcourse
+
+course
+    ref AEM 311
+    name Fluid Mechanics
+    desc Fluid statics, application of conservation laws to simple systems,
+    desc dimensional analysis and similitude, and flow in open and closed
+    desc conduits.
+    hours 3
+    reqs Calculus III
+    reqs AEM Statics
+endcourse

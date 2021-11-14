@@ -8,7 +8,7 @@
  */
 #include "Commands.h++"
 
-// we need access to the registry
+ // we need access to the registry
 #include "Registry.h++"
 // we need access to the license
 #include "License.h"
@@ -40,6 +40,7 @@ void printLicense ( int const & , char const *const *const & );
 void printVersion ( int const & , char const *const *const & );
 void printHelping ( int const & , char const *const *const & );
 void startProgram ( int const & , char const *const *const & );
+void scanAndShowCourse ( int const & , char const *const *const & );
 
 /**
  * \brief the recognized command-line arguments
@@ -49,6 +50,7 @@ Command commands [ ] = {
     {"--version", &printVersion},
     {"--help" , &printHelping},
     {"--filename" , &startProgram},
+    {"--detail", &scanAndShowCourse},
 };
 
 /**
@@ -101,9 +103,10 @@ void printHelping ( int const &argc , char const *const *const &argv ) {
 #else
     static char const *const filename = "./prerequisite-checker";
 #endif
-    std::cout << "Usage: " << filename << " [--license] [--version] [--help] [--filename {manifest filename}]\n";
+    std::cout << "Usage: " << filename << " [--license] [--version] [--help] [--filename {manifest filename} | --detail {manifest filename} {course reference...}]\n";
     std::cout << "At least one argument (the things in the square brackets) must be specified. Manifest filename refers to\n";
     std::cout << "a manifest of where to find all the data files for the program.\n";
+    std::cout << "Course Reference refers to the acronym and number uniquely identifying the course in the data files, ex, CS 101 or UH 300\n";
 }
 
 /**
@@ -128,4 +131,59 @@ void startProgram ( int const &argc , char const *const *const &argv ) {
     }
     //std::cout << "This option is currently under construction...\n";
     //std::cout << "The main functionality of the program will go here.\n";
+}
+
+void scanAndShowCourse ( int const &argc , char const *const *const &argv ) {
+    auto i = 0LLU;
+    for ( ; std::string ( "--detail" ) != argv [ i ]; i++ );
+    if ( i + 1 - argc <= 0 ) {
+        std::cout << "The --detail option needs an argument.\n";
+        std::exit ( -1 );
+    } else {
+        auto listInformation = [ ] ( Registry &reg , Reference const &ref ) {
+            Course *course = reg.resolveCourse ( ref );
+            std::cout << "Details on " << ref << "\n";
+            if (!course) {
+                std::cout << "[No Details]\n\n";
+                return;
+            }
+            std::cout << "Name: " << course->getName ( ) << "\n";
+            std::cout << "Description: " << course->getDesc ( ) << "\n";
+            std::cout << "Hours: " << course->getHours ( ) << "\n";
+            std::cout << "Tags: ";
+            for ( auto i = course->begin ( ); i != course->end ( ); i++ ) {
+                std::cout << *i << "; ";
+            }
+            std::cout << "\n";
+            std::cout << "Requisites: \n";
+            std::cout << "Note, any courses on the same line will satisfy the line. All lines must be satisfied for all requisites to be met.\n";
+            for ( Requisites *pRequisites : course->resolveRequisites ( reg ) ) {
+                std::cout << pRequisites->getReference ( ) << ": ";
+                for ( auto requisite : pRequisites->getRequisites ( ) ) {
+                    std::cout << requisite.getCourse ( ) << " (" << (requisite.allowPreviously ( ) ? "P" : "") << (requisite.allowConcurrent ( ) ? "C" : "") << "); ";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << "\n\n";
+        };
+        char const *const filename = argv [ i + 1 ];
+        i += 2;
+        std::fstream file ( filename );
+        Registry registry;
+        file >> registry;
+        try {
+            if ( std::string ( argv [ i ] ) == "all" ) {
+                for ( Reference reference : registry.knownCourses ( ) ) {
+                    listInformation ( registry , reference );
+                }
+            } else for ( ; i < ( unsigned ) argc; i += 2 ) { // pk since argc < 0 does not make sense.
+                Reference courseRef ( argv [ i ] , argv [ i + 1 ] );
+                listInformation ( registry , courseRef );
+            }
+        } catch ( std::out_of_range out_of_range ) {
+            std::cerr << "Caught out_of_range exception while processing for course reference starting around argc = " << i << "\n";
+            std::cerr << "What: " << out_of_range.what ( ) << "\n";
+            throw;
+        }
+    }
 }

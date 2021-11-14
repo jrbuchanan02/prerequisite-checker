@@ -21,5 +21,12 @@ public:
 
     Flagged &operator = ( Flagged const & ) noexcept = default;
     Flagged &operator = ( Flagged && ) noexcept = default;
+
+    auto begin ( ) {
+        return flags.begin();
+    }
+    auto end ( ) {
+        return flags.end ( );
+    }
 };
 

@@ -53,6 +53,14 @@ public:
         } return nullptr;
     }
 
+    std::vector < Reference > const knownCourses ( ) const noexcept {
+        std::vector < Reference > known ( courses.size ( ) );
+        for ( auto i = 0LLU; i < courses.size ( ); i++) {
+            known [ i ] = courses [ i]->getReference ( );
+        } 
+        return known;
+    }
+
     Requisites *resolveRequisites ( Reference const &reference ) const noexcept {
         for ( Requisites *prequisites : requisites ) {
             if ( prequisites->getReference ( ) == reference ) {

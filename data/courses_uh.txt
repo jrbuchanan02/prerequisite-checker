@@ -7,10 +7,41 @@ endcourse
 course
     ref UH 2@@
     hours 3
+    Honors
 endcourse
 
 course
     ref UH 200
     hours 2
+    Honors
+endcourse
+
+course
+    ref UH 201
+    hours 1
+    Honors
+endcourse
+
+course
+    ref UH 203
+    hours 3
+    Honors
+endcourse
+
+course
+    ref UH 205
+    hours 3
+    Honors
+endcourse
+
+course
+    ref UH 270
+    hours 1
+    Honors
+endcourse
+
+course
+    ref UH 394
+    hours 1
     Honors
 endcourse

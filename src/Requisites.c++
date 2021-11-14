@@ -44,8 +44,10 @@ bool const Requisites::meetsRequisite ( Course const &course ) const noexcept {
     for ( Requisite requisite : requisites ) {
         std::cout << "Checking if " << requisite.getCourse ( ) << " is " << course.getReference ( ) << "\n";
         if (requisite.getCourse ( ) == course.getReference ( ) ) {
+            std::cout << "Found that " << requisite.getCourse ( ) << " is " << course.getReference ( ) << "\n";
             return true;
         }
     }
+    std::cout << "Could not match " << course.getReference ( ) << "\n";
     return false;
 }

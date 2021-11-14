@@ -1,0 +1,56 @@
+
+course
+    ref MUS 010
+    hours 0
+endcourse
+
+course
+    ref MUS 115
+    hours 4
+endcourse 
+
+
+course
+    ref MUS 219
+    hours 2
+endcourse
+
+course
+    ref MUS 220
+    hours 2
+endcourse
+
+course
+    ref MUS 250
+    hours 3
+endcourse
+
+course
+    ref MUS 252
+    hours 1
+endcourse
+
+course
+    ref MUS 308
+    hours 3
+endcourse
+
+course
+    ref MUS 319
+    hours 3
+endcourse
+
+course
+    ref MUS 340
+    hours 3
+endcourse
+
+course
+    ref MUS 430-4
+    hours 4
+endcourse
+
+course
+    ref MUS 430-2
+    hours 2
+endcourse

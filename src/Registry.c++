@@ -97,5 +97,7 @@ std::istream &Registry::extract ( std::istream &istream ) {
 void Registry::runTests ( ) const noexcept {
     for ( Plan *pplan : plans ) {
         std::cout << pplan->getPlanMessage ( *this ) << "\n";
+        std::cout << "Press enter to test the next plan.\n";
+        std::cin.get();
     }
 }

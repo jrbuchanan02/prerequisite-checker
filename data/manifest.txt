@@ -1,3 +1,4 @@
+courses ./data/courses_aem.txt
 courses ./data/courses_ch.txt
 courses ./data/courses_cs.txt
 courses ./data/courses_ec.txt
@@ -6,6 +7,10 @@ courses ./data/courses_en.txt
 courses ./data/courses_engr.txt
 courses ./data/courses_hy.txt
 courses ./data/courses_math.txt
+courses ./data/courses_me.txt
+courses ./data/courses_mte.txt
+courses ./data/courses_mua.txt
+courses ./data/courses_mus.txt
 courses ./data/courses_ph.txt
 courses ./data/courses_psc.txt
 courses ./data/courses_sp.txt

@@ -3,3 +3,18 @@ course
     hours 3
     Honors
 endcourse
+
+course
+    ref ENGR 161
+    hours 1
+endcourse
+
+course
+    ref ENGR 171
+    hours 1
+endcourse
+
+course
+    ref ENGR 191-004
+    hours 1
+endcourse

@@ -9,3 +9,17 @@ course
     reqs (Pre)Calculus Trigonometry
     NaturalScience
 endcourse
+
+course
+    ref CH 102
+    name General Chemistry
+    desc Three lectures and one three-hour laboratory. Degree credit is not
+    desc awarded for both CH 102 and CH 105 or both CH 102 and CH 118.
+    desc Continuation of CH 100 or CH 101, with basic inorganic chemistry.
+    desc Includes a systematic study of the elements and the structures,
+    desc properties, and reactions of their compounds. Usually offered in the
+    desc fall, spring, and summer semesters.
+    reqs Introductory GeneralChemistry
+    hours 4
+    NaturalScience
+endcourse

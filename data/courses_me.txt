@@ -1,0 +1,15 @@
+
+course
+    ref ME 121
+    hours 1
+endcourse
+
+course
+    ref ME 215
+    hours 3
+endcourse
+
+course
+    ref ME 305
+    hours 3
+endcourse

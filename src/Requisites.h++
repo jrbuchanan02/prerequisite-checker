@@ -22,6 +22,10 @@ public:
 
     bool const meetsRequisite ( Course const & ) const noexcept;
 
+    std::vector < Requisite > const &getRequisites ( ) const noexcept {
+        return requisites;
+    }
+
     Requisites &operator = ( Requisites const & ) noexcept = default;
     Requisites &operator = ( Requisites && ) noexcept = default;
 

@@ -9,6 +9,101 @@ course
 endcourse
 
 course
+    ref CS 200
+    hours 4
+endcourse
+
+course
     ref CS 201
     hours 4
+endcourse
+
+course
+    ref CS 300
+    hours 4
+endcourse
+
+course
+    ref CS 301
+    hours 4
+endcourse
+
+course
+    ref CS 460
+    hours 3
+endcourse
+
+course
+    ref CS 465
+    hours 3
+endcourse
+
+course
+    ref CS 481
+    hours 4
+endcourse
+
+course
+    ref CS 495
+    hours 4
+endcourse
+
+course 
+    ref CS 503
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 526
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 538
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 567
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 570
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 575
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 591
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 599
+    hours 6
+    Graduate
+endcourse
+
+course
+    ref CS 613
+    hours 3
+    Graduate
+endcourse
+
+course
+    ref CS 618
+    hours 3
+    Graduate
 endcourse
