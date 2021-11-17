@@ -1,15 +1,53 @@
 #include "Course.h++"
 
 #include "ExtractionMethods.h++"
+#include "Keyword.h++"
 #include "Registry.h++"
 
+#include <functional>
 #include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
 #include <vector>
 
+
 std::istream &Course::extract ( std::istream &istream ) {
+
+    auto convert = [ ] ( Serial &course ) -> Course & {
+        return (Course &) ( Referred & ) course;
+    };
+
+    auto appendFunction = [ ] ( std::string &variable , std::string const keyword , std::stringstream &sstream ) {
+        variable += sstream.str ( ).substr ( sstream.str ( ).find ( keyword ) + keyword.size ( ) + 1 );
+    };
+
+    auto nameFunction = [ & ] ( std::stringstream &is , Serial &c ) {
+        appendFunction ( convert ( c ).name , std::string ( "name" ) , is );
+    };
+    auto descriptionFunction = [ & ] ( std::stringstream &is , Serial &c ) {
+        appendFunction ( convert ( c ).desc , std::string ( "desc" ) , is );
+    };
+
+    auto requisitesFunction = [ & ] ( std::stringstream &is , Serial &c ) {
+        Reference reference;
+        is >> reference;
+        convert ( c ).requisites.push_back ( reference );
+    };
+
+    auto hoursFunction = [ & ] ( std::stringstream &is , Serial &c ) {
+        is >> convert ( c ).hours;
+    };
+
+    static Keyword keywords [ ] = {
+        Keyword ( "ref" , wrap ( referenceFunction ) ) ,
+        Keyword ( "name" ,std::function ( nameFunction ) ) ,
+        Keyword ( "desc" ,std::function ( descriptionFunction ) ) ,
+        Keyword ( "reqs" ,std::function ( requisitesFunction ) ) ,
+        Keyword ( "hours" ,std::function ( hoursFunction ) ) ,
+    };
+
+
     std::stringstream line;
     std::string temp;
     // the course keyword begins with the keyword "course"
@@ -30,25 +68,18 @@ std::istream &Course::extract ( std::istream &istream ) {
         line = std::stringstream ( temp );
         line >> temp;
         //std::cout << "Keyword: " << temp << std::endl;
-        if ( temp == "endcourse" ) {
+        if ( isComment ( temp ) ) continue;
+        else if ( temp == "endcourse" ) {
             break;
-        } else if ( temp == "ref" ) {
-            grabReference ( line );
-        } else if ( temp == "name" ) {
-            if ( name != "" ) name += " ";
-            name += line.str ( ).substr ( line.str ( ).find ( temp ) + temp.size ( ) + 1 );
-        } else if ( temp == "desc" ) {
-            if ( desc != "" ) desc += " ";
-            desc += line.str ( ).substr ( line.str ( ).find ( temp ) + temp.size ( ) + 1 );
-        } else if ( temp == "reqs" ) {
-            // grab the reference
-            Reference found;
-            line >> found;
-            requisites.push_back ( found );
-        } else if ( temp == "hours" ) {
-            line >> hours;
         } else {
-            addFlag ( temp );
+            bool matched = false;
+            for ( auto i = 0LLU; i < sizeof ( keywords ) / sizeof ( keywords [ 0 ] ); i++ ) {
+                if ( keywords [ i ].keyword == temp ) {
+                    keywords [ i ].function ( line , ( Referred & ) *this );
+                    matched = true;
+                }
+            }
+            if ( !matched ) addFlag ( temp );
         }
     } while ( true );
     return istream;
@@ -84,7 +115,7 @@ bool const Course::meetsRequisites ( std::vector < std::vector < Reference > > c
                 }
             }
             offending = requisiteGroup;
-            if (!foundMatch) return false;
+            if ( !foundMatch ) return false;
         }
     }
 

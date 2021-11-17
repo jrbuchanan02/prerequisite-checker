@@ -1,6 +1,8 @@
 #include "Requisites.h++"
 
 #include "Course.h++"
+#include "ExtractionMethods.h++"
+#include "Keyword.h++"
 #include "Referred.h++"
 #include "Registry.h++"
 #include "Requisite.h++"
@@ -16,23 +18,30 @@ std::istream &Requisites::extract ( std::istream &istream ) {
     // requisites begins with a keyword: "reqs"
     std::stringstream line;
     std::string temp;
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
-        line >> temp;
-    } while ( temp != "reqs" );
+    extractToKeyword ( istream , "reqs" );
     // now, we are looking for one of two keywords: "ref" or "req" and we will end when we find "endreqs"
+
+    auto requisiteFunction = [ ] ( std::stringstream &is , Serial &serial ) {
+        while (!is.eof ( ) ) {
+            Requisite requisite;
+            is >> requisite;
+            ((Requisites &)serial).requisites.push_back ( requisite );
+        }
+    };
+    
+    static Keyword keywords [ ] = {
+        Keyword ( "ref" , wrap ( referenceFunction ) ) ,
+        Keyword ( "reqs" , std::function ( requisiteFunction ) ) ,
+    };
+    
     do {
         std::getline ( istream , temp );
         line = std::stringstream ( temp );
         line >> temp;
-        if ( temp == "ref" ) {
-            grabReference ( line );
-        } else if ( temp == "req" ) {
-            while (!line.eof ( ) ) {
-                Requisite requisite;
-                line >> requisite;
-                requisites.push_back ( requisite );
+        if ( isComment ( temp ) ) continue;
+        else for ( auto i = 0LLU; i < sizeof ( keywords ) / sizeof ( keywords [ 0 ] ); i++ ) {
+            if ( temp == keywords [ i ].keyword ) {
+                keywords [ i ].function ( line , *this );
             }
         }
     } while ( temp != "endreqs" );

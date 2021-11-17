@@ -1,5 +1,6 @@
 #pragma once
 
+//#include "Keyword.h++"
 #include "Reference.h++"
 #include "Serial.h++"
 
@@ -12,6 +13,7 @@ protected:
         istream >> reference;
     }
 public:
+    friend void referenceFunction ( std::stringstream & , Referred & );
     Referred ( ) noexcept = default;
     Referred ( Referred const & ) noexcept = default;
     Referred ( Referred && ) noexcept = default;

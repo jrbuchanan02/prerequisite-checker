@@ -22,6 +22,7 @@ std::istream &Semester::extract ( std::istream &istream ) {
         std::getline ( istream , temp );
         line = std::stringstream ( temp );
         line >> temp;
+        if ( isComment ( temp ) ) continue;
         if ( temp == "endsemester" ) break;
         else if ( temp == "ref" ) {
             grabReference ( line );

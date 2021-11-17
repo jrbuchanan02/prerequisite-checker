@@ -1,6 +1,8 @@
 #include "Registry.h++"
 
 #include "Course.h++"
+#include "ExtractionMethods.h++"
+#include "Keyword.h++"
 #include "Plan.h++"
 #include "Reference.h++"
 #include "Requisites.h++"
@@ -42,6 +44,14 @@ void Registry::copy ( Registry const &registry ) noexcept {
     }
 }
 
+template < typename T >
+void slurpFile ( std::vector < T * > &vector , std::ifstream &ifstream ) {
+    T *data = new T ( );
+    ifstream >> *data;
+    vector.push_back ( data );
+}
+
+
 std::istream &Registry::extract ( std::istream &istream ) {
     // we have four keywords that take up one line.
     // courses
@@ -49,45 +59,62 @@ std::istream &Registry::extract ( std::istream &istream ) {
     // semesters
     // plans
     // 
-    // each take an argument which is the file to slurp with the items.
+    // each take an argument which is the file to slurp with the items. 
+
+    auto maskaroo = [ & ] ( std::string const &keyword , std::string const &path ) {
+        std::ifstream file ( path );
+        if ( keyword == "courses" ) {
+            slurpFile < Course > ( this->courses , file );
+        } else if ( keyword == "requisites" ) {
+            slurpFile < Requisites > ( this->requisites , file );
+        } else if ( keyword == "semesters" ) {
+            slurpFile < Semester > ( this->semesters , file );
+        } else if ( keyword == "plans" ) {
+            slurpFile < Plan > ( this->plans , file );
+        }
+    };
+
+    auto getPath = [ ] ( std::stringstream &is , std::string const &keyword ) -> std::string {
+        std::string line = is.str ( );
+        return line.substr ( line.find ( keyword ) + keyword.size ( ) + 1 );
+    };
+
+    auto interface = [ & ] ( std::stringstream &is , std::string const keyword ) {
+        maskaroo ( keyword , getPath ( is , keyword ) );
+    };
+
+    auto coursesFunction = [ & ] ( std::stringstream &is , Serial & ) {
+        interface ( is , "courses" );
+    };
+    auto requisitesFunction = [ & ] ( std::stringstream &is , Serial & ) {
+        interface ( is , "requisites" );
+    };
+    auto semestersFunction = [ & ] ( std::stringstream &is , Serial & ) {
+        interface ( is , "semesters" );
+    };
+
+    auto plansFunction = [ & ] ( std::stringstream &is , Serial & ) {
+        interface ( is , "plans" );
+    };
+
+    static Keyword keywords [ ] = {
+        Keyword ( "courses" , std::function ( coursesFunction ) ) ,
+        Keyword ( "requisites" , std::function ( requisitesFunction ) ) ,
+        Keyword ( "semesters" , std::function ( semestersFunction ) ) ,
+        Keyword ( "plans" , std::function ( plansFunction ) ) ,
+    };
+
     std::stringstream line;
     std::string temp;
     do {
         std::getline ( istream , temp );
         line = std::stringstream ( temp );
         line >> temp;
-        std::string path = line.str ( ).substr ( line.str ( ).find ( temp ) + temp.size ( ) + 1 );
-        //std::cout << "Will look in path " << path << "\n";
-        if ( temp == "courses" ) {
-            //std::cout << "Slurping courses file...\n";
-            std::ifstream coursesFile ( path );
-            //std::cout << "Courses file opened: " << coursesFile.good ( ) << std::endl;
-            while ( !coursesFile.eof ( ) ) {
-                Course *found = new Course ( );
-                coursesFile >> *found;
-                courses.push_back ( found );
-                //std::cout << "Found Course " << found->getReference ( ) << "\n";
-            }
-        } else if ( temp == "requisites" ) {
-            std::ifstream requisitesFile ( path );
-            while ( !requisitesFile.eof ( ) ) {
-                Requisites *found = new Requisites ( );
-                requisitesFile >> *found;
-                requisites.push_back ( found );
-            }
-        } else if ( temp == "semesters" ) {
-            std::ifstream semestersFile ( path );
-            while ( !semestersFile.eof ( ) ) {
-                Semester *found = new Semester ( );
-                semestersFile >> *found;
-                semesters.push_back ( found );
-            }
-        } else if ( temp == "plans" ) {
-            std::ifstream plansFile ( path );
-            while ( !plansFile.eof ( ) ) {
-                Plan *found = new Plan ( );
-                plansFile >> *found;
-                plans.push_back ( found );
+        if ( isComment ( temp ) ) continue;
+        else for ( auto i = 0LLU; i < sizeof ( keywords ) / sizeof ( keywords [ 0 ] ); i++ ) {
+            if ( temp == keywords [ i ].keyword ) {
+                keywords [ i ].function ( line , *this );
+                break;
             }
         }
     } while ( !istream.eof ( ) );
@@ -98,6 +125,6 @@ void Registry::runTests ( ) const noexcept {
     for ( Plan *pplan : plans ) {
         std::cout << pplan->getPlanMessage ( *this ) << "\n";
         std::cout << "Press enter to test the next plan.\n";
-        std::cin.get();
+        std::cin.get ( );
     }
 }

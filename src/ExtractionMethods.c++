@@ -15,3 +15,7 @@ bool const extractToKeyword ( std::istream &istream , std::string const &keyword
     } while (temp != keyword && !istream.eof ( ) );
     return !istream.eof ( );
 }
+
+bool const isComment ( std::string const &word ) {
+    return word.front ( ) == '#';
+}

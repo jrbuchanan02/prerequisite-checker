@@ -23,8 +23,8 @@ class Registry; // fixes registry including Course
 
 /**
  * \class Course
- * \brief A class taken in a University. Courses have multiple Requisites that 
- * all must be met for the course to have its requisites met. In addition to a 
+ * \brief A class taken in a University. Courses have multiple Requisites that
+ * all must be met for the course to have its requisites met. In addition to a
  * unique reference, Course also has a human-readable name and description (ex,
  * CS 101 is CS II for Majors, and has a paragraph-length description). A course
  * provides a certain number of hours that have certain flags.
@@ -38,7 +38,7 @@ protected:
     virtual std::istream &extract ( std::istream &istream ) override;
 public:
     /**
-     * \brief Explicitly tell g++ that Course can be constructed by default and 
+     * \brief Explicitly tell g++ that Course can be constructed by default and
      * trivially so.
      */
     Course ( ) noexcept = default;
@@ -96,7 +96,7 @@ public:
     std::vector < Requisites *> const resolveRequisites ( Registry const & ) noexcept;
     bool const hoursHaveAttribute ( std::string const & ) const noexcept;
 
-    bool const meetsRequisites ( std::vector < std::vector < Reference > > const & , Registry const &, Reference &);
+    bool const meetsRequisites ( std::vector < std::vector < Reference > > const & , Registry const & , Reference & );
     /**
      * \brief Tell g++ that if it knows how to copy a Course without error, it then
      * knows how to use the copy-assignment operator without error.
@@ -108,10 +108,11 @@ public:
      */
     Course &operator = ( Course && ) noexcept = default;
     /**
-     * \brief C++ gets confused because of the double-inheritance from Serial. It 
-     * is unsure which match to std::istream &operator>>( std::istream &, Serial & ) 
-     * to use. 
-     * \note This code is the code in Serial verbatim, replacing "Serial &" with 
+     * \brief C++ gets confused because of the double-inheritance from Serial. It
+     * is unsure which match to std::istream &operator>>( std::istream &, Serial & )
+     * to use. In short, we have to tell it to use the exact match that we have 
+     * with Course. I believe that we would end up calling the same function. 🤷
+     * \note This code is the code in Serial verbatim, replacing "Serial &" with
      * "Course &"
      */
     friend std::istream &operator >> ( std::istream &istream , Course &course ) {
