@@ -54,8 +54,8 @@ std::istream &Course::extract ( std::istream &istream ) {
     return istream;
 }
 
-std::vector < Requisites *> const Course::resolveRequisites ( Registry const &withRegistry ) noexcept {
-    std::vector <Requisites *> output;
+std::vector < RequisitesPointer> const Course::resolveRequisites ( Registry const &withRegistry ) noexcept {
+    std::vector <RequisitesPointer> output;
     for ( Reference requisites : this->requisites ) {
         output.push_back ( withRegistry.resolveRequisites ( requisites ) );
     }
@@ -67,13 +67,13 @@ bool const Course::meetsRequisites ( std::vector < std::vector < Reference > > c
 
     // if there are no courses, we do not meet the prerequisites
     for ( Reference requisiteGroup : requisites ) {
-        Requisites *prequisites = registry.resolveRequisites ( requisiteGroup );
+        RequisitesPointer prequisites = registry.resolveRequisites ( requisiteGroup );
         if ( prequisites ) {
             bool foundMatch = false;
 
             for ( auto semester : courses ) {
                 for ( Reference course : semester ) {
-                    Course *pcourse = registry.resolveCourse ( course );
+                    CoursePointer pcourse = registry.resolveCourse ( course );
                     if ( pcourse ) {
                         bool matchState = prequisites->meetsRequisite ( *pcourse );
                         if ( matchState ) {

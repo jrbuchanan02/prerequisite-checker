@@ -8,6 +8,10 @@ class Registry; // fixes Registry including this file
 
 #include <istream>
 #include <vector>
+#include <memory>
+
+class Requisites;
+using RequisitesPointer = std::shared_ptr<Requisites>;
 
 class Requisites : public Referred {
     std::vector < Requisite > requisites;

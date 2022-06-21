@@ -8,6 +8,10 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
+
+class Semester;
+using SemesterPointer = std::shared_ptr<Semester>;
 
 class Semester : public Flagged , public Referred {
 protected:

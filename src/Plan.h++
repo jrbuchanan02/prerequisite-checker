@@ -10,6 +10,10 @@ class Registry; // fix Registry.h++ including this file
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
+
+class Plan;
+using PlanPointer = std::shared_ptr<Plan>;
 
 class Plan : public Referred {
     std::map < Reference , std::vector < Reference > > semesters;

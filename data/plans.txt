@@ -11,7 +11,7 @@ plan
 
     semester Freshman Fall CS 101 ECE 121 ENGR 123 MATH 247 UH 100
 
-    semester Freshman Spring MATH 238 MATH 301 UH 200 MATH 237 ENGR 191-004
+    semester Freshman Spring MATH 238 MATH 301 UH 200 MATH 237 ECE 380 ENGR 191-004
     semester Freshman Spring MATH 355 CS 200 CS 201 UH 203
 
     semester Sophomore Fall ECE 225 ECE 383 PH 253 CS 300
@@ -38,7 +38,7 @@ plan
 
     semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
     semester Incoming Credit SP 102 SP 201 PH 105 PH 106
-    semester Incoming Credit CS 10 ST260 MATH 125 MATH 126
+    semester Incoming Credit CS 100 ST260 MATH 125 MATH 126
 
     semester Freshman Fall MUS 308 MATH 238 MUS 115 UH 100 MUS 010
     semester Freshman Spring MATH 237 MATH 301 MUA 152 MUA 121 UH 200 MUS 250

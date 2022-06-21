@@ -20,6 +20,11 @@ class Registry; // fixes registry including Course
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
+
+class Course;
+
+using CoursePointer = std::shared_ptr<Course>;
 
 /**
  * \class Course
@@ -93,7 +98,7 @@ public:
      * \brief gets the description of this course
      */
     std::string const &getDesc ( ) const noexcept { return desc; }
-    std::vector < Requisites *> const resolveRequisites ( Registry const & ) noexcept;
+    std::vector < RequisitesPointer > const resolveRequisites ( Registry const & ) noexcept;
     bool const hoursHaveAttribute ( std::string const & ) const noexcept;
 
     bool const meetsRequisites ( std::vector < std::vector < Reference > > const & , Registry const &, Reference &);

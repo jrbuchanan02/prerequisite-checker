@@ -42,7 +42,7 @@ std::istream &Plan::extract ( std::istream &istream ) {
 
 std::string const generateError ( Plan const &plan , Registry const &registry , Reference const &course , Reference const &requisites) {
     std::string message = plan.getReference ( ).getName ( );
-    Course *pCourse = registry.resolveCourse ( course );
+    CoursePointer pCourse = registry.resolveCourse ( course );
     if ( !pCourse ) {
         message += " fails because " + course.getName ( ) + " cannot be resolved. Is it in the data files?";
     } else {
@@ -75,7 +75,7 @@ std::string const Plan::getPlanMessage ( Registry const &registry ) const noexce
                 // for each course *we* have in this semester
                 for ( Reference course : semesters.at ( orderedSemesters [ i ] ) ) {
                     // resolve the course, if we can
-                    Course *pcourse = registry.resolveCourse ( course );
+                    CoursePointer pcourse = registry.resolveCourse ( course );
                     if (!pcourse) { // if the course cannot be resolved, we take it as an error
                         return generateError ( *this , registry , course , firstOffendingRequisiteGroup );
                     } else {
