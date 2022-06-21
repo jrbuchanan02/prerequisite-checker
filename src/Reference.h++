@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Serial.h++"
+#include <Serial.h++>
 
 #include <istream>
 #include <string>
@@ -10,43 +10,33 @@ class Reference : public Serial
     std::string contents = "";
 
 protected:
-    virtual std::istream &extract(std::istream &istream) override
-    {
-        std::getline(istream, contents);
-        while (contents.starts_with(" "))
-        {
-            contents = contents.substr(1);
-        }
-        return istream;
-    }
+    virtual std::istream &extract(std::istream &istream) override;
 
 public:
     Reference() noexcept = default;
     Reference(Reference const &) noexcept = default;
     Reference(Reference &&) noexcept = default;
-    Reference(std::string const &contents) noexcept
-    {
-        this->contents = contents;
-    }
+    Reference(std::string const &contents) noexcept;
+
     Reference(std::istream &istream) : Serial(istream) {}
     virtual ~Reference() = default;
 
-    std::string const getName() const noexcept { return contents; }
+    std::string const getName() const noexcept;
 
     Reference &operator=(Reference const &) noexcept = default;
     Reference &operator=(Reference &&) noexcept = default;
 
-    auto operator<=>(Reference const &that) const noexcept
+    inline auto operator<=>(Reference const &that) const noexcept
     {
         return contents <=> that.contents;
     }
 
-    bool const operator==(Reference const &that) const noexcept
+    inline bool const operator==(Reference const &that) const noexcept
     {
-        return !(*this < that || *this > that);
+        return contents == that.contents;
     }
 
-    friend std::ostream &operator<<(std::ostream &ostream, Reference const &reference)
+    friend inline std::ostream &operator<<(std::ostream &ostream, Reference const &reference)
     {
         return ostream << reference.getName();
     }

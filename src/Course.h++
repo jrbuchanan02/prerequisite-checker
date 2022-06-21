@@ -8,55 +8,56 @@
  */
 #pragma once
 
-class Registry; // fixes registry including Course
-
-#include "Flagged.h++"
-#include "Reference.h++"
-#include "Referred.h++"
-//#include "Registry.h++"
-#include "Requisites.h++"
-
 #include <istream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
 
 class Course;
 
 using CoursePointer = std::shared_ptr<Course>;
 
+#include <Flagged.h++>
+#include <Reference.h++>
+#include <Referred.h++>
+#include <Registry.h++>
+#include <Requisites.h++>
+
 /**
  * \class Course
- * \brief A class taken in a University. Courses have multiple Requisites that 
- * all must be met for the course to have its requisites met. In addition to a 
+ * \brief A class taken in a University. Courses have multiple Requisites that
+ * all must be met for the course to have its requisites met. In addition to a
  * unique reference, Course also has a human-readable name and description (ex,
  * CS 101 is CS II for Majors, and has a paragraph-length description). A course
  * provides a certain number of hours that have certain flags.
  * Therefore, a course is both Flagged and Referred.
  */
-class Course : public Flagged , public Referred {
+class Course : public Flagged, public Referred
+{
     double hours;
-    std::vector < Reference > requisites;
-    std::string name , desc;
+    std::vector<Reference> requisites;
+    std::string name, desc;
+
 protected:
-    virtual std::istream &extract ( std::istream &istream ) override;
+    virtual std::istream &extract(std::istream &istream) override;
+
 public:
     /**
-     * \brief Explicitly tell g++ that Course can be constructed by default and 
+     * \brief Explicitly tell g++ that Course can be constructed by default and
      * trivially so.
      */
-    Course ( ) noexcept = default;
+    inline Course() noexcept = default;
     /**
      * \brief Explicitly tell g++ that Course can be trivially copied without
      * ever erroring out.
      */
-    Course ( Course const & ) noexcept = default;
+    inline Course(Course const &) noexcept = default;
     /**
      * \brief Explicitly tell g++ that Course can be trivially moved without
      * ever erroring out.
      */
-    Course ( Course && ) noexcept = default;
+    inline Course(Course &&) noexcept = default;
     /**
      * \brief Constructs a Course given all possibly necesssary information
      * \param flags the flags which apply to this course, for example, Honors courses
@@ -66,61 +67,54 @@ public:
      * \param name the human readable name of this course
      * \param desc the description for this course.
      */
-    Course (
-        std::vector < std::string > const &flags ,
-        Reference const &reference ,
-        double const &hours ,
-        std::vector < Reference > requisites ,
-        std::string const &name ,
-        std::string const &desc
-    ) noexcept :
-        Flagged ( flags ) ,
-        Referred ( reference ) ,
-        hours ( hours ) ,
-        requisites ( requisites ) ,
-        name ( name ) ,
-        desc ( desc ) { }
+    Course(
+        std::vector<std::string> const &flags,
+        Reference const &reference,
+        double const &hours,
+        std::vector<Reference> const &requisites,
+        std::string const &name,
+        std::string const &desc) noexcept;
     /**
      * \brief Explicitly tell g++ that it knows how to destruct a Course
      */
-    virtual ~Course ( ) = default;
+    inline virtual ~Course() = default;
 
     /**
      * \brief gets the amount of hours this course is worth
      * \return `this->hours`
      */
-    double const &getHours ( ) const noexcept { return hours; }
+    double const &getHours() const noexcept;
     /**
      * \brief gets the human readable name of this course
      */
-    std::string const &getName ( ) const noexcept { return name; }
+    std::string const &getName() const noexcept;
     /**
      * \brief gets the description of this course
      */
-    std::string const &getDesc ( ) const noexcept { return desc; }
-    std::vector < RequisitesPointer > const resolveRequisites ( Registry const & ) noexcept;
-    bool const hoursHaveAttribute ( std::string const & ) const noexcept;
+    std::string const &getDesc() const noexcept;
+    std::vector<RequisitesPointer> const resolveRequisites(Registry const &) noexcept;
+    bool const hoursHaveAttribute(std::string const &) const noexcept;
 
-    bool const meetsRequisites ( std::vector < std::vector < Reference > > const & , Registry const &, Reference &);
+    bool const meetsRequisites(std::vector<std::vector<Reference>> const &, Registry const &, Reference &);
     /**
      * \brief Tell g++ that if it knows how to copy a Course without error, it then
      * knows how to use the copy-assignment operator without error.
      */
-    Course &operator = ( Course const & ) noexcept = default;
+    inline Course &operator=(Course const &) noexcept = default;
     /**
      * \brief Tell g++ that if it knows how to move a Course without error, it then
      * knows how to use the move-assignment operator without error.
      */
-    Course &operator = ( Course && ) noexcept = default;
+    inline Course &operator=(Course &&) noexcept = default;
     /**
-     * \brief C++ gets confused because of the double-inheritance from Serial. It 
-     * is unsure which match to std::istream &operator>>( std::istream &, Serial & ) 
-     * to use. 
-     * \note This code is the code in Serial verbatim, replacing "Serial &" with 
+     * \brief C++ gets confused because of the double-inheritance from Serial. It
+     * is unsure which match to std::istream &operator>>( std::istream &, Serial & )
+     * to use.
+     * \note This code is the code in Serial verbatim, replacing "Serial &" with
      * "Course &"
      */
-    friend std::istream &operator >> ( std::istream &istream , Course &course ) {
-        return course.extract ( istream );
+    inline friend std::istream &operator>>(std::istream &istream, Course &course)
+    {
+        return course.extract(istream);
     }
 };
-

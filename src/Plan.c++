@@ -1,8 +1,8 @@
-#include "Plan.h++"
 
-#include "ExtractionMethods.h++"
-#include "Reference.h++"
-#include "Registry.h++"
+#include <ExtractionMethods.h++>
+#include <Plan.h++>
+#include <Reference.h++>
+#include <Registry.h++>
 
 #include <istream>
 #include <map>
@@ -10,83 +10,103 @@
 #include <string>
 #include <vector>
 
-std::istream &Plan::extract ( std::istream &istream ) {
+std::istream &Plan::extract(std::istream &istream)
+{
     std::stringstream line;
     std::string temp;
     // plans begin with "plan"
-    if (!extractToKeyword ( istream , "plan")) {
+    if (!extractToKeyword(istream, "plan"))
+    {
         return istream;
     }
     // now we only have a few different possible keywords:
     // 1. ref - the reference the plan uses
     // 2. semester {reference} {list of courses} - a semester that uses reference and has these courses specified
     // 3. endplan - end
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
+    do
+    {
+        std::getline(istream, temp);
+        line = std::stringstream(temp);
         line >> temp;
-        if ( temp == "ref" ) {
-            grabReference ( line );
-        } else if ( temp == "semester" ) {
+        if (temp == "ref")
+        {
+            grabReference(line);
+        }
+        else if (temp == "semester")
+        {
             Reference semester;
             line >> semester;
-            while ( !line.eof ( ) ) {
+            while (!line.eof())
+            {
                 Reference course;
                 line >> course;
-                semesters [ semester ].push_back ( course );
+                semesters[semester].push_back(course);
             }
         }
-    } while ( temp != "endplan" );
+    } while (temp != "endplan");
     return istream;
 }
 
-std::string const generateError ( Plan const &plan , Registry const &registry , Reference const &course , Reference const &requisites) {
-    std::string message = plan.getReference ( ).getName ( );
-    CoursePointer pCourse = registry.resolveCourse ( course );
-    if ( !pCourse ) {
-        message += " fails because " + course.getName ( ) + " cannot be resolved. Is it in the data files?";
-    } else {
-        message += " fails because " + course.getName ( ) + " does not meet the requisite " + requisites.getName ( );
+std::string const generateError(Plan const &plan, Registry const &registry, Reference const &course, Reference const &requisites)
+{
+    std::string message = plan.getReference().getName();
+    CoursePointer pCourse = registry.resolveCourse(course);
+    if (!pCourse)
+    {
+        message += " fails because " + course.getName() + " cannot be resolved. Is it in the data files?";
+    }
+    else
+    {
+        message += " fails because " + course.getName() + " does not meet the requisite " + requisites.getName();
     }
     return message;
 }
 
-std::string const Plan::getPlanMessage ( Registry const &registry ) const noexcept {
+std::string const Plan::getPlanMessage(Registry const &registry) const noexcept
+{
     // all of our semesters in chronological (loaded) order
     // because of how std::map works, there is no guarantee that we would iterate through
     // the memebers in order (std::map uses a self-balancing BST, and that would only be in order
     // if the iterator uses an inorder-iteration).
-    std::vector < Reference > orderedSemesters = registry.semestersInOrder ( );
+    std::vector<Reference> orderedSemesters = registry.semestersInOrder();
     // All of the courses that we have looked at and already verified along with the ones that
     // we are verifying.
-    std::vector < std::vector < Reference > > currentAndPriorSemesters;
+    std::vector<std::vector<Reference>> currentAndPriorSemesters;
     // The reference that any non-fufilled course tells us is not met. This reference
     // is to a Requisites.
     Reference firstOffendingRequisiteGroup;
-    for ( auto i = 0LLU; i < orderedSemesters.size ( ); i++ ) {
+    for (auto i = 0LLU; i < orderedSemesters.size(); i++)
+    {
         // If our plan has this semester; plans do not necessarily have to have a semester
         // which has already been defined.
-        if ( semesters.contains ( orderedSemesters [ i ] ) ) {
+        if (semesters.contains(orderedSemesters[i]))
+        {
             // This semester is now the one we are verifying.
-            currentAndPriorSemesters.push_back ( semesters.at ( orderedSemesters [ i ] ) );
-            // only check the prerequisites if we should check the semester. No check for 
+            currentAndPriorSemesters.push_back(semesters.at(orderedSemesters[i]));
+            // only check the prerequisites if we should check the semester. No check for
             // nullpointer is made since only defined semesters would show up in the registry
-            if ( registry.resolveSemester ( orderedSemesters [ i ] )->isChecked ( ) ) {
+            if (registry.resolveSemester(orderedSemesters[i])->isChecked())
+            {
                 // for each course *we* have in this semester
-                for ( Reference course : semesters.at ( orderedSemesters [ i ] ) ) {
+                for (Reference course : semesters.at(orderedSemesters[i]))
+                {
                     // resolve the course, if we can
-                    CoursePointer pcourse = registry.resolveCourse ( course );
-                    if (!pcourse) { // if the course cannot be resolved, we take it as an error
-                        return generateError ( *this , registry , course , firstOffendingRequisiteGroup );
-                    } else {
+                    CoursePointer pcourse = registry.resolveCourse(course);
+                    if (!pcourse)
+                    { // if the course cannot be resolved, we take it as an error
+                        return generateError(*this, registry, course, firstOffendingRequisiteGroup);
+                    }
+                    else
+                    {
                         // if the course has unmet requisites, that is an error.
-                        if (!pcourse->meetsRequisites ( currentAndPriorSemesters , registry , firstOffendingRequisiteGroup ) ) {
-                            return generateError ( *this , registry , course , firstOffendingRequisiteGroup );
+                        if (!pcourse->meetsRequisites(currentAndPriorSemesters, registry, firstOffendingRequisiteGroup))
+                        {
+                            return generateError(*this, registry, course, firstOffendingRequisiteGroup);
                         }
                     }
                 }
             }
         }
     }
-    return getReference ( ).getName ( ) + " passes.";
+    return getReference().getName() + " passes.";
 }

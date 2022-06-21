@@ -1,6 +1,6 @@
 CPP_EX := .c++
 
-CPPSRC := $(wildcard ./src/*$(CPP_EX))
+CPPSRC := $(wildcard ./src/*$(CPP_EX)) -I ./src
 
 ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a -O3
 WINARGS := $(ARGS) -D__WINDOWS__ -o ./prerequisite-checker.exe

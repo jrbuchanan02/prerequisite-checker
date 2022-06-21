@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Flagged.h++"
-#include "Reference.h++"
-#include "Referred.h++"
+#include <Flagged.h++>
+#include <Reference.h++>
+#include <Referred.h++>
 
 #include <istream>
 #include <sstream>
@@ -23,15 +23,12 @@ public:
     Semester ( std::vector < std::string > const &flags , Reference const &reference ) noexcept : Flagged ( flags ) , Referred ( reference ) { }
     virtual ~Semester ( ) = default;
 
-    bool const isChecked ( ) const noexcept {
-        // the only keyword that particularly modifies a semester:
-        return !hasFlag ( "unchecked" );
-    }
+    bool const isChecked ( ) const noexcept;
 
     Semester &operator = ( Semester const & ) noexcept = default;
     Semester &operator = ( Semester && ) noexcept = default;
 
-    friend std::istream &operator >> ( std::istream &istream , Semester &semester ) {
+    friend inline std::istream &operator >> ( std::istream &istream , Semester &semester ) {
         return semester.extract ( istream );
     }
 };

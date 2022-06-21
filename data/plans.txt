@@ -1,6 +1,6 @@
 
 plan
-	ref JerryJessica Plan
+	ref Jerry & Jessica Plan
     semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
     semester Incoming Credit SP 102 SP 201
     semester Incoming Credit HY 117 HY 118 HY 103 HY 104
@@ -85,7 +85,7 @@ plan
 endplan
 
 plan
-    ref MacyMatthew Plan
+    ref Macy & Matthew Plan
 
     semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
     semester Incoming Credit SP 102 SP 201

@@ -1,11 +1,10 @@
-#include "Registry.h++"
-
-#include "Course.h++"
-#include "Plan.h++"
-#include "Reference.h++"
-#include "Requisites.h++"
-#include "Semester.h++"
-#include "Serial.h++"
+#include <Course.h++>
+#include <Plan.h++>
+#include <Reference.h++>
+#include <Registry.h++>
+#include <Requisites.h++>
+#include <Semester.h++>
+#include <Serial.h++>
 
 #include <fstream>
 #include <iostream>
@@ -115,4 +114,90 @@ void Registry::runTests() const noexcept
         std::cout << "Press enter to test the next plan.\n";
         std::cin.get();
     }
+}
+
+std::vector<Reference> const Registry::semestersInOrder() const noexcept
+{
+    std::vector<Reference> output;
+    for (SemesterPointer const &psemester : semesters)
+    {
+        if (psemester)
+        {
+            output.push_back(psemester->getReference());
+        }
+    }
+    return output;
+}
+
+CoursePointer Registry::resolveCourse(Reference const &reference) const noexcept
+{
+    for (CoursePointer const &pcourse : courses)
+    {
+        if (pcourse->getReference() == reference)
+        {
+            return pcourse;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<Reference> const Registry::knownCourses() const noexcept
+{
+    std::vector<Reference> known(courses.size());
+    for (auto i = 0LLU; i < courses.size(); i++)
+    {
+        known[i] = courses[i]->getReference();
+    }
+    return known;
+}
+
+RequisitesPointer Registry::resolveRequisites(Reference const &reference) const noexcept
+{
+    for (RequisitesPointer const &prequisites : requisites)
+    {
+        if (prequisites->getReference() == reference)
+        {
+            return prequisites;
+        }
+    }
+    return nullptr;
+}
+
+SemesterPointer Registry::resolveSemester(Reference const &reference) const noexcept
+{
+    for (SemesterPointer const &psemester : semesters)
+    {
+        if (psemester->getReference() == reference)
+        {
+            return psemester;
+        }
+    }
+    return nullptr;
+}
+
+PlanPointer Registry::resolvePlan(Reference const &reference) const noexcept
+{
+    for (PlanPointer const &pplan : plans)
+    {
+        if (pplan->getReference() == reference)
+        {
+            return pplan;
+        }
+    }
+    return nullptr;
+}
+
+Registry &Registry::operator=(Registry const &registry) noexcept
+{
+    this->Serial::operator=(registry);
+    this->clear();
+    this->copy(registry);
+    return *this;
+}
+
+Registry &Registry::operator=(Registry &&registry) noexcept
+{
+    this->operator=((Registry &)registry);
+    registry.clear();
+    return *this;
 }

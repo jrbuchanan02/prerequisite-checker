@@ -6,12 +6,10 @@
  * \version 1
  * \copyright Joshua Buchanan (C) 2021; MIT License
  */
-#include "Commands.h++"
 
-// we need access to the registry
-#include "Registry.h++"
-// we need access to the license
-#include "License.h"
+#include <Commands.h++>
+#include <License.h>
+#include <Registry.h++>
 
 #include <fstream>
 #include <iostream>
