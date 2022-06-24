@@ -1,24 +1,28 @@
 #pragma once
 
 #include <istream>
+#include <memory>
+
+#include <Extracted.h++>
 
 class Serial
 {
 protected:
-    virtual std::istream &extract(std::istream &) = 0;
+    static inline bool isCorrectType(std::string type, ExtractedItem const &item)
+    {
+        auto position = std::find_if(item.begin(), item.end(), [&](auto t)
+                                     { return t.key == "type" and t.val == type; });
+        return position != item.end();
+    }
 
 public:
     Serial() noexcept = default;
     Serial(Serial const &) noexcept = default;
     Serial(Serial &&) noexcept = default;
-    Serial(std::istream &istream) { istream >> *this; }
     virtual ~Serial() = default;
 
     Serial &operator=(Serial const &) noexcept = default;
     Serial &operator=(Serial &&) noexcept = default;
 
-    friend inline std::istream &operator>>(std::istream &istream, Serial &serial)
-    {
-        return serial.extract(istream);
-    }
+    virtual void extract(ExtractedItem const &) = 0;
 };

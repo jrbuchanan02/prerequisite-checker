@@ -1,79 +1,79 @@
 
 plan
 	ref Jerry & Jessica Plan
-    semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
-    semester Incoming Credit SP 102 SP 201
-    semester Incoming Credit HY 117 HY 118 HY 103 HY 104
-    semester Incoming Credit EC 111 PSC 101
-    semester Incoming Credit ST 260 MATH 125 MATH 126
-    semester Incoming Credit CS 100 CH 101
-    semester Incoming Credit PH 105 PH 106
+    semester Incoming Credit: EN 101 and EN 102 and TRGS-HU from AP Literature
+    semester Incoming Credit: SP 102 and SP 201
+    semester Incoming Credit: HY 117 and HY 118 and HY 103 and HY 104
+    semester Incoming Credit: EC 111 and PSC 101
+    semester Incoming Credit: ST 260 and MATH 125 and MATH 126
+    semester Incoming Credit: CS 100 and CH 101
+    semester Incoming Credit: PH 105 and PH 106
 
-    semester Freshman Fall CS 101 ECE 121 ENGR 123 MATH 247 UH 100
+    semester Freshman Fall: CS 101 and ECE 121 and ENGR 123 and MATH 247 and UH 100
 
-    semester Freshman Spring MATH 238 MATH 301 UH 200 MATH 237 ECE 380 ENGR 191-004
-    semester Freshman Spring MATH 355 CS 200 CS 201 UH 203
+    semester Freshman Spring: MATH 238 and MATH 301 and UH 200 and MATH 237 and ECE 380 and ENGR 191-004
+    semester Freshman Spring: MATH 355 and CS 200 and CS 201 and UH 203
 
-    semester Sophomore Fall ECE 225 ECE 383 PH 253 CS 300
-    semester Sophomore Fall CS 301 CS 503 CS 567
+    semester Sophomore Fall: ECE 225 and ECE 383 and PH 253 and CS 300
+    semester Sophomore Fall: CS 301 and CS 503 and CS 567
     
-    semester Sophomore Spring ECE 370 ECE 332 ECE 480 ECE 481 ECE 486 ECE 487
-    semester Sophomore Spring ECE 326 CS 481 CS 526 CS 465
+    semester Sophomore Spring: ECE 370 and ECE 332 and ECE 480 and ECE 481 and ECE 486 and ECE 487
+    semester Sophomore Spring: ECE 326 and CS 481 and CS 526 and CS 465
 
-    semester Junior Fall ECE 484 ECE 333 ECE 580 ECE 581
-    semester Junior Fall CS 591 CS 570 CS 538 CS 460
+    semester Junior Fall: ECE 484 and ECE 333 and ECE 580 and ECE 581
+    semester Junior Fall: CS 591 and CS 570 and CS 538 and CS 460
 
-    semester Junior Spring ECE 508 ECE 509 ECE 538 ECE 588
-    semester Junior Spring CS 613 CS 575
+    semester Junior Spring: ECE 508 and ECE 509 and ECE 538 and ECE 588
+    semester Junior Spring: CS 613 and CS 575
 
-    semester Senior Fall ECE 492 ECE 579
-    semester Senior Fall CS 618
+    semester Senior Fall: ECE 492 and ECE 579
+    semester Senior Fall: CS 618
 
-    semester Senior Spring ECE 494 ECE 598 ECE 599
-    semester Senior Spring CS 495 CS 599
+    semester Senior Spring: ECE 494 and ECE 598 and ECE 599
+    semester Senior Spring: CS 495 and CS 599
 endplan
 
 plan
     ref Neki Plan
 
-    semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
-    semester Incoming Credit SP 102 SP 201 PH 105 PH 106
-    semester Incoming Credit CS 100 ST260 MATH 125 MATH 126
+    semester Incoming Credit: EN 101 and EN 102 and TRGS-HU from AP Literature
+    semester Incoming Credit: SP 102 and SP 201 and PH 105 and PH 106
+    semester Incoming Credit: CS 100 and ST 260 and MATH 125 and MATH 126
 
-    semester Freshman Fall MUS 308 MATH 238 MUS 115 UH 100 MUS 010
-    semester Freshman Spring MATH 237 MATH 301 MUA 152 MUA 121 UH 200 MUS 250
+    semester Freshman Fall: MUS 308 and MATH and 238 and MUS 115 and UH 100 and MUS 010
+    semester Freshman Spring: MATH 237 and MATH 301 and MUA 152 and MUA 121 and UH 200 and MUS 250
 
-    semester Sophomore Fall MATH 247 MUA 252 MUA 142 UH 394 UH 205 MUA 122 MUA 123
-    semester Sophomore Spring MUS 340 ECE 225 MATH 355 MUA 242 MUA 124 UH 270
+    semester Sophomore Fall: MATH 247 and MUA 252 and MUA 142 and UH 394 and UH 205 and MUA 122 and MUA 123
+    semester Sophomore Spring: MUS 340 and ECE 225 and MATH 355 and MUA 242 and MUA 124 and UH 270
     
-    semester Junior Fall ECE 380 MUS 340 ECE 332 MUA 125 UH 201
-    semester Junior Spring MUS 430-4 ECE 383 ECE 333
+    semester Junior Fall: ECE 380 and MUS 340 and ECE 332 and MUA 125 and UH 201
+    semester Junior Spring: MUS 430-4 and ECE 383 and ECE 333
 
-    semester Senior Fall MUS 430-4 MUA 399 MUS 220 MUS 219 ECE 370
-    semester Senior Spring MUA 499 MUS 430-2 ECE 484 MUS 319 ECE 327
+    semester Senior Fall: MUS 430-4 and MUA 399 and MUS 220 and MUS 219 and ECE 370
+    semester Senior Spring: MUA 499 and MUS 430-2 and ECE 484 and MUS 319 and ECE 327
 endplan
 
 plan
     ref Alex Plan
-    semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
-    semester Incoming Credit SP 102 SP 201
-    semester Incoming Credit HY 117 HY 118 HY 103 HY 104
-    semester Incoming Credit EC 111 PSC 101
-    semester Incoming Credit ST 260 MATH 125 MATH 126
-    semester Incoming Credit CS 100 CH 101
-    semester Incoming Credit PH 105 PH 106
+    semester Incoming Credit: EN 101 and EN 102 and TRGS-HU from AP Literature
+    semester Incoming Credit: SP 102 and SP 201
+    semester Incoming Credit: HY 117 and HY 118 and HY 103 and HY 104
+    semester Incoming Credit: EC 111 and PSC 101
+    semester Incoming Credit: ST 260 and MATH 125 and MATH 126
+    semester Incoming Credit: CS 100 and CH 101
+    semester Incoming Credit: PH 105 and PH 106
 
-    semester Freshman Fall CS 101 ECE 121 ENGR 123 MATH 247 UH 100
-    semester Freshman Spring MATH 238 MATH 301 ECE 380 UH 200 MATH 237 ENGR 191-004
+    semester Freshman Fall: CS 101 ECE 121 ENGR 123 MATH 247 UH 100
+    semester Freshman Spring: MATH 238 and MATH 301 and ECE 380 and UH 200 and MATH 237 and ENGR 191-004
     
-    semester Sophomore Fall ECE 225 CS 201 ECE 383 MATH 355
-    semester Sophomore Spring ECE 370 ECE 332 ECE 480 ECE 481 ECE 486 ECE 487
+    semester Sophomore Fall: ECE 225 and CS 201 and ECE 383 and MATH 355
+    semester Sophomore Spring: ECE 370 and ECE 332 and ECE 480 and ECE 481 and ECE 486 and ECE 487
 
-    semester Junior Fall ECE 484 ECE 333 ECE 580 ECE 581
-    semester Junior Spring ECE 326 ECE 508 ECE 509 ECE 538 ECE 588 PH 253
+    semester Junior Fall: ECE 484 and ECE 333 and ECE 580 and ECE 581
+    semester Junior Spring: ECE 326 and ECE 508 and ECE 509 and ECE 538 and ECE 588 and PH 253
 
-    semester Senior Fall ECE 492 ECE 579
-    semester Senior Spring ECE 494 ECE 598 ECE 599
+    semester Senior Fall: ECE 492 and ECE 579
+    semester Senior Spring: ECE 494 and ECE 598 and ECE 599
 endplan
 
 plan
@@ -87,16 +87,16 @@ endplan
 plan
     ref Macy & Matthew Plan
 
-    semester Incoming Credit EN 101 EN 102 TRGS-HU APLit
-    semester Incoming Credit SP 102 SP 201
-    semester Incoming Credit HY 117 HY 118 HY 103 HY 104
-    semester Incoming Credit EC 111 PSC 101
-    semester Incoming Credit ST 260 MATH 125 MATH 126
-    semester Incoming Credit CS 100 CH 101
-    semester Incoming Credit PH 105 PH 106
+    semester Incoming Credit: EN 101 and EN 102 and TRGS-HU from AP Literature
+    semester Incoming Credit: SP 102 and SP 201
+    semester Incoming Credit: HY 117 and HY 118 and HY 103 and HY 104
+    semester Incoming Credit: EC 111 and PSC 101
+    semester Incoming Credit: ST 260 and MATH 125 and MATH 126
+    semester Incoming Credit: CS 100 and CH 101
+    semester Incoming Credit: PH 105 and PH 106
 
-    semester Freshman Fall ME 121 ENGR 171 ENGR 123 MATH 247 ENGR 161 UH 100 AEM 201 CH 102
+    semester Freshman Fall: ME 121 and ENGR 171 and ENGR 123 and MATH 247 and ENGR 161 and UH 100 and AEM 201 and CH 102
     
-    semester Freshman Spring ME 215 AEM 264 AEM 311 UH 200 MATH 238 ME 305
-    semester Freshman Spring MTE 271 MTE 252 UH 203
+    semester Freshman Spring: ME 215 and AEM 264 and AEM 311 and UH 200 and MATH 238 and ME 305
+    semester Freshman Spring: MTE 271 and MTE and 252 and UH 203
 endplan

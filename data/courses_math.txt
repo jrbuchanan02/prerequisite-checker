@@ -8,7 +8,6 @@ course
     desc work with quadratic equations. Grades are reported as pass/fail.
     hours 3
 endcourse
-
 course
     ref MATH 100
     name Intermediate Algebra
@@ -23,7 +22,6 @@ course
     reqs Introductory Algebra
     hours 3
 endcourse
-
 course
     ref MATH 112
     name Precalculus Algebra

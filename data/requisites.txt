@@ -11,8 +11,7 @@ endreqs
 
 reqs
     ref Possibly Concurrent Calculus I or Calculus II
-    req pre con MATH 125 pre con MATH 126
-    req pre con MATH 145 pre con MATH 146
+    req pre con MATH 125 pre con MATH 145 pre con MATH 126 pre con MATH 146
 endreqs
 
 reqs

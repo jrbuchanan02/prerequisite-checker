@@ -1,6 +1,6 @@
 #include <Course.h++>
-#include <ExtractionMethods.h++>
 #include <Registry.h++>
+#include <main.h++>
 
 #include <iostream>
 #include <istream>
@@ -16,67 +16,62 @@ std::string const &Course::getName() const noexcept { return name; }
 
 std::string const &Course::getDesc() const noexcept { return desc; }
 
-std::istream &Course::extract(std::istream &istream)
+void Course::extract(ExtractedItem const &item)
 {
-    std::stringstream line;
-    std::string temp;
-    // the course keyword begins with the keyword "course"
-    // so iterate until we find that
-    if (!extractToKeyword(istream, "course"))
+    application.getLog() << "Extracting course at 0x" << (void *)this << "\n";
+    if (not isCorrectType("course", item))
     {
-        return istream;
+        throw;
     }
-    // now we iterate with only a few different possible keywords:
-    // we can have the course reference, "ref"
-    // we can have the course name (or part of it), "name"
-    // we can have the course description (or part of it), "desc"
-    // we can have the course requisites (or some of them), "reqs"
-    // we can have a flag (does not match any keyword)
-    // we can have the hours, "hours", followed by a double value.
-    // or we can find "endcourse" and be done
-    do
+
+    auto findAll = [&](std::string keyword)
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-        // std::cout << "Keyword: " << temp << std::endl;
-        if (temp == "endcourse")
+        ExtractedItem result;
+        for (Tag tag : item)
         {
-            break;
+            if (tag.key == keyword)
+            {
+                result.push_back(tag);
+            }
         }
-        else if (temp == "ref")
-        {
-            grabReference(line);
-        }
-        else if (temp == "name")
-        {
-            if (name != "")
-                name += " ";
-            name += line.str().substr(line.str().find(temp) + temp.size() + 1);
-        }
-        else if (temp == "desc")
-        {
-            if (desc != "")
-                desc += " ";
-            desc += line.str().substr(line.str().find(temp) + temp.size() + 1);
-        }
-        else if (temp == "reqs")
-        {
-            // grab the reference
-            Reference found;
-            line >> found;
-            requisites.push_back(found);
-        }
-        else if (temp == "hours")
-        {
-            line >> hours;
-        }
-        else
-        {
-            addFlag(temp);
-        }
-    } while (true);
-    return istream;
+        return result;
+    };
+
+    application.getLog() << "Here.\n";
+    // grab reference
+    getReference().extract(item);
+    application.getLog() << "Here.\n";
+    // find all tags which are reqs
+    ExtractedItem reqs = findAll("reqs");
+    application.getLog() << "Here.\n";
+    std::for_each(reqs.begin(), reqs.end(), [&](auto t)
+                  { requisites.push_back(t.val); });
+    application.getLog() << "Here.\n";
+    // find all tags which are hours
+    ExtractedItem hours = findAll("hours");
+    application.getLog() << "Here.\n";
+    std::for_each(hours.begin(), hours.end(), [&](auto t)
+                  { double found = 0.0;
+        std::stringstream { t.val } >> found; if ( found > 0) { this->hours = found;} });
+    application.getLog() << "Here.\n";
+    // find all tags which are name
+    ExtractedItem names = findAll("name");
+    application.getLog() << "Here.\n";
+    std::for_each(names.begin(), names.end(), [&](auto t)
+                  { name = name + " " + t.val; });
+    application.getLog() << "Here.\n";
+    // find all tags which are desc
+    ExtractedItem descs = findAll("desc");
+    application.getLog() << "Here.\n";
+    std::for_each(descs.begin(), descs.end(), [&](auto t)
+                  { desc = desc + " " + t.val; });
+    application.getLog() << "Here.\n";
+    // find all tags which are tagged
+    ExtractedItem flags = findAll("tagged");
+    application.getLog() << "Here.\n";
+    std::for_each(flags.begin(), flags.end(), [&](auto t)
+                  { addFlag(t.val); });
+    application.getLog() << "Here.\n";
 }
 
 std::vector<RequisitesPointer> const Course::resolveRequisites(Registry const &withRegistry) noexcept
@@ -111,7 +106,7 @@ bool const Course::meetsRequisites(std::vector<std::vector<Reference>> const &co
                         bool matchState = prequisites->meetsRequisite(*pcourse);
                         if (matchState)
                         {
-                            std::cout << course << " matches " << getReference() << "\n";
+                            application.getLog() << course << " matches " << getReference() << "\n";
                         }
                         foundMatch |= matchState;
                     }
@@ -119,7 +114,9 @@ bool const Course::meetsRequisites(std::vector<std::vector<Reference>> const &co
             }
             offending = requisiteGroup;
             if (!foundMatch)
+            {
                 return false;
+            }
         }
     }
 

@@ -35,12 +35,10 @@ using CoursePointer = std::shared_ptr<Course>;
  */
 class Course : public Flagged, public Referred
 {
-    double hours;
+    double hours = -1;
     std::vector<Reference> requisites;
-    std::string name, desc;
-
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
+    std::string name = "";
+    std::string desc = "";
 
 public:
     /**
@@ -106,15 +104,6 @@ public:
      * knows how to use the move-assignment operator without error.
      */
     inline Course &operator=(Course &&) noexcept = default;
-    /**
-     * \brief C++ gets confused because of the double-inheritance from Serial. It
-     * is unsure which match to std::istream &operator>>( std::istream &, Serial & )
-     * to use.
-     * \note This code is the code in Serial verbatim, replacing "Serial &" with
-     * "Course &"
-     */
-    inline friend std::istream &operator>>(std::istream &istream, Course &course)
-    {
-        return course.extract(istream);
-    }
+    
+    virtual void extract(ExtractedItem const &) override;
 };

@@ -1,7 +1,7 @@
 
 semester
     ref Incoming Credit
-    unchecked
+    tagged unchecked
 endsemester
 
 semester

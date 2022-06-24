@@ -26,7 +26,7 @@ public:
     Flagged(Flagged const &) noexcept = default;
     Flagged(Flagged &&) noexcept = default;
     Flagged(std::vector<std::string> const &flags) noexcept : flags(flags) {}
-    Flagged(std::istream &istream) : Serial(istream) {}
+
     virtual ~Flagged() = default;
 
     Flagged &operator=(Flagged const &) noexcept = default;

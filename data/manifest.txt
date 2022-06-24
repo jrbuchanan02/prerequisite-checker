@@ -1,3 +1,4 @@
+manifest
 courses ./data/courses_aem.txt
 courses ./data/courses_ch.txt
 courses ./data/courses_cs.txt
@@ -19,3 +20,4 @@ courses ./data/courses_uh.txt
 requisites ./data/requisites.txt
 plans ./data/plans.txt
 semesters ./data/semesters.txt
+endmanifest

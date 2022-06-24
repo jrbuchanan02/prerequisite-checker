@@ -8,6 +8,7 @@
 
 class Registry;
 
+#include <main.h++>
 #include <Course.h++>
 #include <Plan.h++>
 #include <Reference.h++>
@@ -15,7 +16,7 @@ class Registry;
 #include <Semester.h++>
 #include <Serial.h++>
 
-class Registry : public Serial
+class Registry
 {
     std::vector<CoursePointer> courses;
     std::vector<RequisitesPointer> requisites;
@@ -26,16 +27,13 @@ class Registry : public Serial
     void clear() noexcept;
     void copy(Registry const &registry) noexcept;
 
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
-
 public:
     Registry() noexcept = default;
-    Registry(Registry const &registry) : Serial(registry)
+    Registry(Registry const &registry)
     {
         copy(registry);
     }
-    Registry(Registry &&registry) : Serial(registry)
+    Registry(Registry &&registry)
     {
         copy(registry);
         registry.clear();
@@ -63,4 +61,6 @@ public:
     Registry &operator=(Registry &&registry) noexcept;
 
     void runTests() const noexcept;
+
+    void parse(Extracted const &);
 };

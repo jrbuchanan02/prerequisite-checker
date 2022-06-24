@@ -11,38 +11,39 @@
 #include <string>
 #include <vector>
 
-std::istream &Requisites::extract(std::istream &istream)
+void Requisites::extract(ExtractedItem const &extracted)
 {
-    // requisites begins with a keyword: "reqs"
-    std::stringstream line;
-    std::string temp;
-    do
+    if (not isCorrectType("reqs", extracted))
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-    } while (temp != "reqs");
-    // now, we are looking for one of two keywords: "ref" or "req" and we will end when we find "endreqs"
-    do
+        throw;
+    }
+    // extract everything...
+    std::intmax_t counter = 0;
+    auto hasAny = [&]()
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-        if (temp == "ref")
+        auto first = std::find_if(extracted.begin(), extracted.end(), [&](auto t)
+                                  { return t.key.starts_with("req " + std::to_string(counter)); });
+        return first != extracted.end();
+    };
+    for (; hasAny(); counter++)
+    {
+        // find all requisites matching this group.
+        ExtractedItem filtered;
+        for (Tag tag : extracted)
         {
-            grabReference(line);
-        }
-        else if (temp == "req")
-        {
-            while (!line.eof())
+            if (tag.key.starts_with("req " + std::to_string(counter)))
             {
-                Requisite requisite;
-                line >> requisite;
-                requisites.push_back(requisite);
+                filtered.push_back(tag);
             }
         }
-    } while (temp != "endreqs");
-    return istream;
+        for (std::intmax_t i = 0; Tag tag : filtered)
+        {
+            Requisite found;
+            found.counter = i++;
+            found.extract(filtered);
+            requisites.push_back(found);
+        }
+    }
 }
 
 bool const Requisites::meetsRequisite(Course const &course) const noexcept

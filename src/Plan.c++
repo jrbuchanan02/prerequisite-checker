@@ -1,5 +1,3 @@
-
-#include <ExtractionMethods.h++>
 #include <Plan.h++>
 #include <Reference.h++>
 #include <Registry.h++>
@@ -10,41 +8,35 @@
 #include <string>
 #include <vector>
 
-std::istream &Plan::extract(std::istream &istream)
+void Plan::extract(ExtractedItem const &item)
 {
-    std::stringstream line;
-    std::string temp;
-    // plans begin with "plan"
-    if (!extractToKeyword(istream, "plan"))
+    if (not isCorrectType("plan", item))
     {
-        return istream;
+        throw;
     }
-    // now we only have a few different possible keywords:
-    // 1. ref - the reference the plan uses
-    // 2. semester {reference} {list of courses} - a semester that uses reference and has these courses specified
-    // 3. endplan - end
-    do
+    // extract our reference.
+    getReference().extract(item);
+    // each item that is not "type" and not "ref"
+    std::vector<std::string> semesterNames;
+    std::for_each(item.begin(), item.end(), [&](auto t)
+                  { if ( t.key != "type" and t.key != "ref") semesterNames.push_back(t.key); });
+    std::vector<Reference> semesters;
+    std::for_each(semesterNames.begin(), semesterNames.end(), [&](auto s)
+                  { semesters.push_back(Reference(s)); });
+    std::for_each(semesters.begin(), semesters.end(), [&](auto r)
+                  { this->semesters.emplace(r, std::vector<Reference>{}); });
+    for (auto pair : this->semesters)
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-        if (temp == "ref")
-        {
-            grabReference(line);
-        }
-        else if (temp == "semester")
-        {
-            Reference semester;
-            line >> semester;
-            while (!line.eof())
+        auto const &semester = pair.first;
+        auto &courses = this->semesters.at(semester);
+
+        std::for_each(item.begin(), item.end(), [&](auto t)
+                      {
+            if ( t.key == semester)
             {
-                Reference course;
-                line >> course;
-                semesters[semester].push_back(course);
-            }
-        }
-    } while (temp != "endplan");
-    return istream;
+                courses.push_back(Reference(t.val));
+            } });
+    }
 }
 
 std::string const generateError(Plan const &plan, Registry const &registry, Reference const &course, Reference const &requisites)

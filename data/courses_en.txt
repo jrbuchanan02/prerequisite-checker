@@ -10,7 +10,7 @@ course
 endcourse
 
 course
-    ref TRGS-HU AP-Lit
+    ref TRGS-HU from AP Literature
     desc Credit Transferred into the University of Alabama for attaining a 4 or 
     desc a 5 on both AP English exams.
     hours 3

@@ -8,17 +8,12 @@
 class Reference : public Serial
 {
     std::string contents = "";
-
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
-
 public:
     Reference() noexcept = default;
     Reference(Reference const &) noexcept = default;
     Reference(Reference &&) noexcept = default;
     Reference(std::string const &contents) noexcept;
 
-    Reference(std::istream &istream) : Serial(istream) {}
     virtual ~Reference() = default;
 
     std::string const getName() const noexcept;
@@ -40,4 +35,6 @@ public:
     {
         return ostream << reference.getName();
     }
+
+    virtual void extract(ExtractedItem const &) override;
 };

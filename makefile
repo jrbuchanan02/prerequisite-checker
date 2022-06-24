@@ -1,6 +1,7 @@
 CPP_EX := .c++
 
 CPPSRC := $(wildcard ./src/*$(CPP_EX)) -I ./src
+CPPSRC += $(wildcard ./yaml-cpp/src/*.cpp) -I ./yaml-cpp/include
 
 ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a -O3
 WINARGS := $(ARGS) -D__WINDOWS__ -o ./prerequisite-checker.exe

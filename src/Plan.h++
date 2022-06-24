@@ -18,9 +18,6 @@ class Plan : public Referred
 {
     std::map<Reference, std::vector<Reference>> semesters;
 
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
-
 public:
     Plan() noexcept = default;
     Plan(Plan const &) noexcept = default;
@@ -32,4 +29,6 @@ public:
 
     Plan &operator=(Plan const &) noexcept = default;
     Plan &operator=(Plan &&) noexcept = default;
+
+    virtual void extract(ExtractedItem const &) override;
 };

@@ -1,4 +1,4 @@
-#include <ExtractionMethods.h++>
+#include <Extracted.h++>
 #include <Semester.h++>
 
 #include <istream>
@@ -6,36 +6,24 @@
 #include <string>
 #include <vector>
 
-std::istream &Semester::extract(std::istream &istream)
+void Semester::extract(ExtractedItem const &extracted)
 {
-    // semesters begin with the "semester" keyword
-    std::stringstream line;
-    std::string temp;
-    if (!extractToKeyword(istream, "semester"))
+    // find the tag "type" and ensure that it matches "semester".
+    if (not Serial::isCorrectType("semester", extracted))
     {
-        return istream;
+        throw;
     }
-    // we can have three values:
-    // 1. endsemester (we end the creation of the semester)
-    // 2. ref (the reference that the semester uses)
-    // 3. [anything else] (a flag!)
-    do
+    // Extract our reference.
+    // TODO!
+
+    // Semester only cares about being tagged "unchecked", if so,
+    // we add that flag.
+    auto unchecked = std::find_if(extracted.begin(), extracted.end(), [](auto t)
+                                  { return t.key == "tagged" and t.val == "unchecked"; });
+    if (unchecked != extracted.end())
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-        if (temp == "endsemester")
-            break;
-        else if (temp == "ref")
-        {
-            grabReference(line);
-        }
-        else
-        {
-            addFlag(temp);
-        }
-    } while (true);
-    return istream;
+        addFlag("unchecked");
+    }
 }
 
 bool const Semester::isChecked() const noexcept

@@ -10,10 +10,7 @@
 class Requisite : public Flagged
 {
     Reference course;
-
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
-
+    friend class Requisites;
 public:
     Requisite() noexcept = default;
     Requisite(Requisite const &) noexcept = default;
@@ -25,4 +22,9 @@ public:
     bool const allowConcurrent() const noexcept;
 
     Reference const &getCourse() const noexcept;
+
+
+    virtual void extract(ExtractedItem const &) override;
+
+    std::uintmax_t counter = 0;
 };

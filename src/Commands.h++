@@ -9,4 +9,43 @@
 
 #pragma once
 
-void parseArgs ( int const , char const *const *const );
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
+class Application
+{
+    bool verbose = false;
+
+    std::ostream mutable *cout = &std::cout;
+    std::istream mutable *cin = &std::cin;
+
+    std::stringstream mutable *dummy = nullptr;
+    std::string filename;
+    std::string reconstructedCommandline;
+
+    int argc;
+    char const *const *argv;
+
+    std::ifstream openManifest(std::string const &);
+
+public:
+    void handleVerbose(int const &);
+    void handleHelping(int const &);
+    void handleRunning(int const &);
+    void handleListing(int const &);
+    void handleLicense(int const &);
+    void handleVersion(int const &);
+
+    Application() noexcept = default;
+
+    Application(int const, char const *const *const);
+
+    std::ostream &getCout() const noexcept;
+    std::istream &getCin() const noexcept;
+
+    std::ostream &getLog() const noexcept;
+
+    void run();
+};

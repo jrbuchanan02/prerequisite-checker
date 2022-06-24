@@ -1,10 +1,12 @@
 #include <Course.h++>
+#include <Extracted.h++>
 #include <Plan.h++>
 #include <Reference.h++>
 #include <Registry.h++>
 #include <Requisites.h++>
 #include <Semester.h++>
 #include <Serial.h++>
+#include <main.h++>
 
 #include <fstream>
 #include <iostream>
@@ -41,78 +43,49 @@ void Registry::copy(Registry const &registry) noexcept
     }
 }
 
-std::istream &Registry::extract(std::istream &istream)
+void Registry::parse(Extracted const &extracted)
 {
-    // we have four keywords that take up one line.
-    // courses
-    // requisites
-    // semesters
-    // plans
-    //
-    // each take an argument which is the file to slurp with the items.
-    std::stringstream line;
-    std::string temp;
-    do
+    application.getLog() << "Parsing begin.\n";
+    application.getLog() << "Parsing courses...\n";
+    std::integral auto counter = 0;
+    for (ExtractedItem item : extracted.getTagsOfType("course"))
     {
-        std::getline(istream, temp);
-        line = std::stringstream(temp);
-        line >> temp;
-        std::string path = line.str().substr(line.str().find(temp) + temp.size() + 1);
-        // std::cout << "Will look in path " << path << "\n";
-        if (temp == "courses")
-        {
-            // std::cout << "Slurping courses file...\n";
-            std::ifstream coursesFile(path);
-            // std::cout << "Courses file opened: " << coursesFile.good ( ) << std::endl;
-            while (!coursesFile.eof())
-            {
-                CoursePointer found = CoursePointer(new Course());
-                coursesFile >> *found;
-                courses.push_back(found);
-                // std::cout << "Found Course " << found->getReference ( ) << "\n";
-            }
-        }
-        else if (temp == "requisites")
-        {
-            std::ifstream requisitesFile(path);
-            while (!requisitesFile.eof())
-            {
-                RequisitesPointer found = RequisitesPointer(new Requisites());
-                requisitesFile >> *found;
-                requisites.push_back(found);
-            }
-        }
-        else if (temp == "semesters")
-        {
-            std::ifstream semestersFile(path);
-            while (!semestersFile.eof())
-            {
-                SemesterPointer found = SemesterPointer(new Semester());
-                semestersFile >> *found;
-                semesters.push_back(found);
-            }
-        }
-        else if (temp == "plans")
-        {
-            std::ifstream plansFile(path);
-            while (!plansFile.eof())
-            {
-                PlanPointer found = PlanPointer(new Plan());
-                plansFile >> *found;
-                plans.push_back(found);
-            }
-        }
-    } while (!istream.eof());
-    return istream;
+        application.getLog() << "Extracting course " << ++counter << "\n";
+        CoursePointer pointer = CoursePointer(new Course());
+        pointer->extract(item);
+        courses.push_back(pointer);
+    }
+    application.getLog() << "Parsing requisites...\n";
+    for (ExtractedItem item : extracted.getTagsOfType("requisites"))
+    {
+        RequisitesPointer pointer = RequisitesPointer(new Requisites());
+        pointer->extract(item);
+        requisites.push_back(pointer);
+    }
+    application.getLog() << "Parsing semesters...\n";
+    for (ExtractedItem item : extracted.getTagsOfType("semester"))
+    {
+        SemesterPointer pointer = SemesterPointer(new Semester());
+        pointer->extract(item);
+        semesters.push_back(pointer);
+    }
+    application.getLog() << "Parsing plans...\n";
+    for (ExtractedItem item : extracted.getTagsOfType("plan"))
+    {
+        PlanPointer pointer = PlanPointer(new Plan());
+        pointer->extract(item);
+        plans.push_back(pointer);
+    }
+    application.getLog() << "Parsing complete.\n";
 }
 
 void Registry::runTests() const noexcept
 {
     for (PlanPointer pplan : plans)
     {
-        std::cout << pplan->getPlanMessage(*this) << "\n";
-        std::cout << "Press enter to test the next plan.\n";
-        std::cin.get();
+        application.getCout() << pplan->getPlanMessage(*this) << "\n";
+        application.getCout() << "Press enter to test the next plan.\n";
+        application.getCin().get();
     }
 }
 
@@ -123,7 +96,7 @@ std::vector<Reference> const Registry::semestersInOrder() const noexcept
     {
         if (psemester)
         {
-            output.push_back(psemester->getReference());
+            output.push_back(((Semester const)*psemester).getReference());
         }
     }
     return output;
@@ -133,7 +106,7 @@ CoursePointer Registry::resolveCourse(Reference const &reference) const noexcept
 {
     for (CoursePointer const &pcourse : courses)
     {
-        if (pcourse->getReference() == reference)
+        if (((Course const)*pcourse).getReference() == reference)
         {
             return pcourse;
         }
@@ -146,7 +119,7 @@ std::vector<Reference> const Registry::knownCourses() const noexcept
     std::vector<Reference> known(courses.size());
     for (auto i = 0LLU; i < courses.size(); i++)
     {
-        known[i] = courses[i]->getReference();
+        known[i] = ((Course const)*courses[i]).getReference();
     }
     return known;
 }
@@ -155,7 +128,7 @@ RequisitesPointer Registry::resolveRequisites(Reference const &reference) const 
 {
     for (RequisitesPointer const &prequisites : requisites)
     {
-        if (prequisites->getReference() == reference)
+        if (((Requisites const)*prequisites).getReference() == reference)
         {
             return prequisites;
         }
@@ -167,7 +140,7 @@ SemesterPointer Registry::resolveSemester(Reference const &reference) const noex
 {
     for (SemesterPointer const &psemester : semesters)
     {
-        if (psemester->getReference() == reference)
+        if (((Semester const)*psemester).getReference() == reference)
         {
             return psemester;
         }
@@ -179,7 +152,7 @@ PlanPointer Registry::resolvePlan(Reference const &reference) const noexcept
 {
     for (PlanPointer const &pplan : plans)
     {
-        if (pplan->getReference() == reference)
+        if (((Plan const)*pplan).getReference() == reference)
         {
             return pplan;
         }
@@ -189,7 +162,6 @@ PlanPointer Registry::resolvePlan(Reference const &reference) const noexcept
 
 Registry &Registry::operator=(Registry const &registry) noexcept
 {
-    this->Serial::operator=(registry);
     this->clear();
     this->copy(registry);
     return *this;

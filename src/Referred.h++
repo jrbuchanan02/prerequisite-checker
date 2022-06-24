@@ -10,8 +10,7 @@ class Referred : public Serial
     Reference reference;
 
 protected:
-    void grabReference(std::istream &istream);
-
+    Reference &getReference() noexcept;
 public:
     Referred() noexcept = default;
     Referred(Referred const &) noexcept = default;

@@ -17,9 +17,6 @@ class Requisites : public Referred
 {
     std::vector<Requisite> requisites;
 
-protected:
-    virtual std::istream &extract(std::istream &istream) override;
-
 public:
     Requisites() noexcept = default;
     Requisites(Requisites const &) noexcept = default;
@@ -33,4 +30,6 @@ public:
 
     Requisites &operator=(Requisites const &) noexcept = default;
     Requisites &operator=(Requisites &&) noexcept = default;
+
+    virtual void extract(ExtractedItem const &);
 };

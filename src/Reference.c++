@@ -9,23 +9,33 @@
  *
  */
 
+#include <main.h++>
 #include <Reference.h++>
 #include <Serial.h++>
 
 #include <istream>
 #include <string>
 
-std::istream &Reference::extract(std::istream &istream)
+void Reference::extract(ExtractedItem const &item)
 {
-    std::getline(istream, contents);
-    while (contents.starts_with(" "))
+    // find the first element called "ref"
+    try
     {
-        contents = contents.substr(1);
+        auto firstRef = std::find_if(item.begin(), item.end(), [](auto t)
+                                 { return t.key == "ref"; });
+    contents = firstRef->val;
+    } catch ( std::bad_alloc &badAlloc)
+    {
+        application.getCout() << "Caught a bad_alloc exception.\n";
+        application.getCout() << "This is an error. Dumping the offending ExtractedItem's tags.\n";
+        for ( auto tag : item)
+        {
+            application.getCout() << tag.key << " => " << tag.val << "\n";
+        }
+        throw badAlloc;
     }
-    return istream;
 }
 
 Reference::Reference(std::string const &contents) noexcept : contents{contents} {}
 
-std::string const Reference::getName() const noexcept { return contents;}
-
+std::string const Reference::getName() const noexcept { return contents; }
