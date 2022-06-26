@@ -6,74 +6,73 @@
 #include <string>
 #include <vector>
 
-void Flagged::addFlag(std::string const &flag) { flags.push_back(flag); }
-
-bool const Flagged::hasFlag(std::string const &flag) const noexcept
+void Flagged::addFlag ( std::string const &flag )
 {
-    for (std::string contained : flags)
+    std::string toAdd = flag;
+    while ( toAdd.starts_with ( " " ) ) { toAdd = toAdd.substr ( 1 ); }
+    while ( toAdd.ends_with ( " " ) )
     {
-        if (contained == flag)
-            return true;
+        toAdd = toAdd.substr ( 0, toAdd.size ( ) - 1 );
     }
-    return false;
+    flags.push_back ( flag );
 }
 
-Flagged::FlagIterator Flagged::begin() noexcept
+bool const Flagged::hasFlag ( std::string const &flag ) const noexcept
 {
-    return flags.begin();
+    auto position = std::find ( flags.begin ( ), flags.end ( ), flag );
+    return position != flags.end ( );
 }
 
-Flagged::ConstFlagIterator Flagged::begin() const noexcept
+Flagged::FlagIterator Flagged::begin ( ) noexcept { return flags.begin ( ); }
+
+Flagged::ConstFlagIterator Flagged::begin ( ) const noexcept
 {
-    return flags.begin();
+    return flags.begin ( );
 }
 
-Flagged::FlagIterator Flagged::end() noexcept
+Flagged::FlagIterator Flagged::end ( ) noexcept { return flags.end ( ); }
+
+Flagged::ConstFlagIterator Flagged::end ( ) const noexcept
 {
-    return flags.end();
+    return flags.end ( );
 }
 
-Flagged::ConstFlagIterator Flagged::end() const noexcept
+Flagged::ConstFlagIterator Flagged::cbegin ( ) const noexcept
 {
-    return flags.end();
+    return flags.cbegin ( );
 }
 
-Flagged::ConstFlagIterator Flagged::cbegin() const noexcept
+Flagged::ConstFlagIterator Flagged::cend ( ) const noexcept
 {
-    return flags.cbegin();
+    return flags.cend ( );
 }
 
-Flagged::ConstFlagIterator Flagged::cend() const noexcept
-{
-    return flags.cend();
-}
-
-//Flagged::ReverseFlagIterator Flagged::rbegin() noexcept
+// Flagged::ReverseFlagIterator Flagged::rbegin() noexcept
 //{
-//    return flags.rbegin();
-//}
+//     return flags.rbegin();
+// }
 //
-//Flagged::ReverseFlagIterator Flagged::rbegin() const noexcept
+// Flagged::ReverseFlagIterator Flagged::rbegin() const noexcept
 //{
-//    return flags.rbegin();
-//}
+//     return flags.rbegin();
+// }
 //
-//Flagged::ReverseFlagIterator Flagged::rend() noexcept
+// Flagged::ReverseFlagIterator Flagged::rend() noexcept
 //{
-//    return flags.rend();
-//}
+//     return flags.rend();
+// }
 //
-//Flagged::ReverseFlagIterator Flagged::rend() const noexcept
+// Flagged::ReverseFlagIterator Flagged::rend() const noexcept
 //{
-//    return flags.rend();
-//}
+//     return flags.rend();
+// }
 //
-//Flagged::ReverseConstFlagIterator Flagged::crbegin() const noexcept
+// Flagged::ReverseConstFlagIterator Flagged::crbegin() const noexcept
 //{
-//    return flags.crbegin();
-//}
+//     return flags.crbegin();
+// }
 //
-//Flagged::ReverseConstFlagIterator Flagged::crend() const noexcept
+// Flagged::ReverseConstFlagIterator Flagged::crend() const noexcept
 //{
-//    return flags.crend();
-//}
+//     return flags.crend();
+// }

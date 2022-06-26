@@ -1,17 +1,41 @@
-# prerequisite-checker
+# Prerequisite Checker
 
- Checks College Prerequisites
+Prerequisite checker is an open source software that helps check if a college
+schedule is sane. That is, Prerequisite Checker will make sure the plan you
+have for your class schedule does not put something like CS 200 before CS 101
+(if that is not allowed).
 
-## Why prerequisite-checker?
+## License
 
- It all started in the fall of my freshman year at the University of Alabama: there seemingly was no system that automatically checks prequisites for your courses! Fortunately, 
- all necessary information exists online in the Course Catalog, however, checking these requisites manually is a pain. So, I made a program to do it. 
+Prerequisite checker is published under the MIT license. You are free to use
+the software in accordance with the terms of the MIT license.
 
- **Technically**, this is the second version of prerequisite-checker, the first version seemed to messy to make open source.
+## Disclaimer
 
-## Can I use prerequisite-checker?
+Prerequisite checker cannot, will not, and should not replace a person or 
+whatever entity performs the final check on your schedule. Since Prerequisite
+checker is not made by your class schedule-approving software / team, 
+Prerequisite checker *may give incorrect answers* and should never have the
+final say in whether you should sign up for a course. Below are some intended
+use cases for Prerequisite Checker. 
 
- Yes, prerequisite-checker uses the MIT license. I am not a lawyer (instead, I'm a Computer Engineering student), but the MIT license seems quite clear on its use and its terms.
- 
- If you feel the need to read the license, it is available in the `LICENSE` file of this source code. Also, it is compiled into the executable and passing it with the argument 
- `--license` will output the license text and exit.
+Good use cases:
+
+1. College student who makes sure they have schedules which work and use
+Prerequisite checker to avoid simple mistakes since a computer will not miss
+that CS 200 does not allow MATH 238 to be taken concurrently.
+2. A College advisor who wants to more quickly go through their work by having
+Prerequisite checker perform an initial pass on the schedules they receive.
+
+Bad use cases:
+
+1. Using Prerequisite Checker to determine if you should take a class
+2. Using Prerequisite Checker to argue with someone.
+3. Signing up for a class just because Prerequisite Checker said you could 
+(and for no other good reason).
+4. NOT signing up for a class just because Prerequisite Checker said you
+could not sign up for it (and for no other good reason).
+
+## How to use Prerequisite Checker
+
+See the Wiki! It's on this repository and should be up to date.

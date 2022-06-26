@@ -5,37 +5,34 @@
  * @version 1
  * @date 2022-06-21
  *
- * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed above.
+ * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed
+ * above.
  *
  */
 
-#include <main.h++>
+#include <Keywords.h++>
 #include <Reference.h++>
 #include <Serial.h++>
+#include <main.h++>
 
 #include <istream>
 #include <string>
 
-void Reference::extract(ExtractedItem const &item)
+using keywords::keys::ref;
+
+void Reference::extract ( ExtractedItem const &item )
 {
-    // find the first element called "ref"
-    try
-    {
-        auto firstRef = std::find_if(item.begin(), item.end(), [](auto t)
-                                 { return t.key == "ref"; });
-    contents = firstRef->val;
-    } catch ( std::bad_alloc &badAlloc)
-    {
-        application.getCout() << "Caught a bad_alloc exception.\n";
-        application.getCout() << "This is an error. Dumping the offending ExtractedItem's tags.\n";
-        for ( auto tag : item)
-        {
-            application.getCout() << tag.key << " => " << tag.val << "\n";
-        }
-        throw badAlloc;
-    }
+    auto refTags = filterForTagType ( item, ref );
+    contents     = refTags.front ( ).val;
+    // while ( contents.starts_with ( " " ) ) { contents = contents.substr ( 1 ); }
+    // while ( contents.ends_with ( " " ) )
+    // {
+    //     contents = contents.substr ( 0, contents.size ( ) );
+    // }
 }
 
-Reference::Reference(std::string const &contents) noexcept : contents{contents} {}
+Reference::Reference ( std::string const &contents ) noexcept :
+        contents { contents }
+{ }
 
-std::string const Reference::getName() const noexcept { return contents; }
+std::string const Reference::getName ( ) const noexcept { return contents; }

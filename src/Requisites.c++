@@ -1,4 +1,5 @@
 #include <Course.h++>
+#include <Keywords.h++>
 #include <Plan.h++>
 #include <Referred.h++>
 #include <Registry.h++>
@@ -11,58 +12,80 @@
 #include <string>
 #include <vector>
 
-void Requisites::extract(ExtractedItem const &extracted)
+using keywords::delimiters::statementDelimiter;
+using keywords::keys::req;
+using keywords::keys::reqs;
+
+void Requisites::extract ( ExtractedItem const &extracted )
 {
-    if (not isCorrectType("reqs", extracted))
-    {
-        throw;
-    }
+    application.getLog ( ) << "Extracting Requisites at 0x" << ( void * ) this
+                           << statementDelimiter;
+    throwOnWrongType ( reqs, extracted );
+    Referred::extract ( extracted );
     // extract everything...
     std::intmax_t counter = 0;
-    auto hasAny = [&]()
-    {
-        auto first = std::find_if(extracted.begin(), extracted.end(), [&](auto t)
-                                  { return t.key.starts_with("req " + std::to_string(counter)); });
-        return first != extracted.end();
+
+    auto generateKeyStart = [ & ] ( ) -> std::string {
+        return req + " " + std::to_string ( counter );
     };
-    for (; hasAny(); counter++)
+
+    auto hasAny = [ & ] ( ) {
+        std::string keyStart = generateKeyStart ( );
+        auto        first    = std::find_if (
+                extracted.begin ( ),
+                extracted.end ( ),
+                [ & ] ( auto t ) { return t.key.starts_with ( keyStart ); } );
+        return first != extracted.end ( );
+    };
+    for ( ; hasAny ( ); counter++ )
     {
+        application.getLog ( ) << "\tChecking for group "
+                               << generateKeyStart ( ) << statementDelimiter;
         // find all requisites matching this group.
         ExtractedItem filtered;
-        for (Tag tag : extracted)
+        std::string   keyStart = generateKeyStart ( );
+        for ( Tag tag : extracted )
         {
-            if (tag.key.starts_with("req " + std::to_string(counter)))
+            if ( tag.key.starts_with ( keyStart ) )
             {
-                filtered.push_back(tag);
+                application.getLog ( ) << "\tFound group named " << tag.key
+                                       << statementDelimiter;
+                filtered.push_back ( tag );
             }
         }
-        for (std::intmax_t i = 0; Tag tag : filtered)
+        for ( std::intmax_t i = 0; Tag tag : filtered )
         {
+            application.getLog ( ) << "\tParsing group named " << tag.key
+                                   << statementDelimiter;
             Requisite found;
             found.counter = i++;
-            found.extract(filtered);
-            requisites.push_back(found);
+            found.extract ( filtered );
+            requisites.push_back ( found );
         }
     }
 }
 
-bool const Requisites::meetsRequisite(Course const &course) const noexcept
+bool const Requisites::meetsRequisite ( Course const &course ) const noexcept
 {
-
-    for (Requisite requisite : requisites)
+    for ( Requisite requisite : requisites )
     {
-        std::cout << "Checking if " << requisite.getCourse() << " is " << course.getReference() << "\n";
-        if (requisite.getCourse() == course.getReference())
+        application.getLog ( )
+                << "Checking if " << requisite.getCourse ( ) << " is "
+                << course.getReference ( ) << statementDelimiter;
+        if ( requisite.getCourse ( ) == course.getReference ( ) )
         {
-            std::cout << "Found that " << requisite.getCourse() << " is " << course.getReference() << "\n";
+            application.getLog ( )
+                    << "Found that " << requisite.getCourse ( ) << " is "
+                    << course.getReference ( ) << statementDelimiter;
             return true;
         }
     }
-    std::cout << "Could not match " << course.getReference() << "\n";
+    application.getLog ( ) << "Could not match " << course.getReference ( )
+                           << statementDelimiter;
     return false;
 }
 
-std::vector<Requisite> const &Requisites::getRequisites() const noexcept
+std::vector< Requisite > const &Requisites::getRequisites ( ) const noexcept
 {
     return requisites;
 }

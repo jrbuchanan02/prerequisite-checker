@@ -5,7 +5,8 @@
  * @version 1
  * @date 2022-06-21
  *
- * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed above.
+ * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed
+ * above.
  *
  */
 
@@ -15,6 +16,11 @@
 
 #include <istream>
 
-Reference &Referred::getReference() noexcept { return reference; }
+Reference &Referred::getReference ( ) noexcept { return reference; }
 
-Reference const &Referred::getReference() const noexcept { return reference; }
+Reference const &Referred::getReference ( ) const noexcept { return reference; }
+
+void Referred::extract ( ExtractedItem const &item )
+{
+    getReference ( ).extract ( item );
+}

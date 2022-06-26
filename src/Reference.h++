@@ -9,32 +9,33 @@ class Reference : public Serial
 {
     std::string contents = "";
 public:
-    Reference() noexcept = default;
-    Reference(Reference const &) noexcept = default;
-    Reference(Reference &&) noexcept = default;
-    Reference(std::string const &contents) noexcept;
+    Reference ( ) noexcept                   = default;
+    Reference ( Reference const & ) noexcept = default;
+    Reference ( Reference && ) noexcept      = default;
+    Reference ( std::string const &contents ) noexcept;
 
-    virtual ~Reference() = default;
+    virtual ~Reference ( ) = default;
 
-    std::string const getName() const noexcept;
+    std::string const getName ( ) const noexcept;
 
-    Reference &operator=(Reference const &) noexcept = default;
-    Reference &operator=(Reference &&) noexcept = default;
+    Reference &operator= ( Reference const & ) noexcept = default;
+    Reference &operator= ( Reference && ) noexcept      = default;
 
-    inline auto operator<=>(Reference const &that) const noexcept
+    inline auto operator<=> ( Reference const &that ) const noexcept
     {
         return contents <=> that.contents;
     }
 
-    inline bool const operator==(Reference const &that) const noexcept
+    inline bool const operator== ( Reference const &that ) const noexcept
     {
         return contents == that.contents;
     }
 
-    friend inline std::ostream &operator<<(std::ostream &ostream, Reference const &reference)
+    friend inline std::ostream &operator<< ( std::ostream    &ostream,
+                                             Reference const &reference )
     {
-        return ostream << reference.getName();
+        return ostream << reference.getName ( );
     }
 
-    virtual void extract(ExtractedItem const &) override;
+    virtual void extract ( ExtractedItem const & ) override;
 };

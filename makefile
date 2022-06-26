@@ -1,17 +1,59 @@
-CPP_EX := .c++
+source_extension = .c++
+extern_extension = .cpp
 
-CPPSRC := $(wildcard ./src/*$(CPP_EX)) -I ./src
-CPPSRC += $(wildcard ./yaml-cpp/src/*.cpp) -I ./yaml-cpp/include
+object_extension = .o
 
-ARGS := -Wall -Wpedantic -Wunused -std=gnu++2a -O3
-WINARGS := $(ARGS) -D__WINDOWS__ -o ./prerequisite-checker.exe
-WSLARGS := $(ARGS) -D__POSIX__ -o ./prerequisite-checker.out
+define extension = 
+	$(if (,$(findstring yaml,$(1))),$(extern_extension),$(source_extension))
+endef
 
-# designed to work on my system that uses msys64
-windows:
-	@echo "Building for Windows..."
-	g++ $(CPPSRC) $(WINARGS)
-#designed to work for my wsl2 build on Windows 11
-wsl2:
-	@echo "Building for WSL2..."
-	g++-10 $(CPPSRC) $(WSLARGS)
+source_directories = src/
+extern_directories = yaml-cpp/src/
+
+include_directories = $(source_directories) $(extern_directories) yaml-cpp/include
+
+source_files = $(foreach dir, $(source_directories), $(wildcard $(dir)*$(source_extension)))
+extern_files = $(foreach dir, $(extern_directories), $(wildcard $(dir)*$(extern_extension)))
+
+executable_name_base = prerequisite-checker
+
+mingw_extension = .exe
+linux_extension = 
+
+windows: version = mingw
+linux: version = linux
+
+windows: mkdir_arg = -Force -Name
+linux: mkdir_arg = -p
+
+executable_name = $(executable_name_base)$($(version)_extension)
+
+bin_location = bin/
+
+object_files = $(foreach file, $(source_files) $(extern_files), $(patsubst %$(call $(extension),$(file)),$(bin_location)%$(object_extension),$(file)))
+
+include_flags = $(foreach include, $(include_directories), -I $(include))
+warning_flags = -Wall -Wpedantic -Wextra
+
+windows: compiler = g++
+linux: compiler = g++-10
+compiler_switches = --std=c++20 -Ofast $(include_flags) $(warning_flags)
+
+define source_from_bin_name = 
+	$(patsubst $(bin_location)%,%,$(patsubst %$(object_extension),%$(call $(extension),@),$@))
+endef
+
+define compile_bin_file = 
+	$(compiler) $(compiler_switches) -c $(source_from_bin_name) -o $@
+endef
+
+$(object_files) : $(source_files) $(extern_files)
+	@echo Compiling file $@
+	@$(compile_bin_file)
+
+build: $(source_files) $(extern_files) $(object_files)
+	@echo Linking...
+	@$(compiler) $(compiler_switches) $(object_files) -o $(executable_name)
+windows: $(object_files) build
+	@echo Done.
+linux: build

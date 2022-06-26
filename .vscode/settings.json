@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.h++": "cpp",
+        "*.h": "c",
         "vector": "cpp",
         "string": "cpp",
         "array": "cpp",
@@ -51,7 +52,8 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "list": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

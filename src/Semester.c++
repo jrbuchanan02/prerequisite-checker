@@ -1,4 +1,5 @@
 #include <Extracted.h++>
+#include <Keywords.h++>
 #include <Semester.h++>
 
 #include <istream>
@@ -6,27 +7,29 @@
 #include <string>
 #include <vector>
 
-void Semester::extract(ExtractedItem const &extracted)
+using keywords::keys::tagged;
+using keywords::tags::uncheckedSemester;
+using keywords::types::semester;
+
+void Semester::extract ( ExtractedItem const &extracted )
 {
-    // find the tag "type" and ensure that it matches "semester".
-    if (not Serial::isCorrectType("semester", extracted))
-    {
-        throw;
-    }
-    // Extract our reference.
-    // TODO!
+    throwOnWrongType ( semester, extracted );
+    Referred::extract ( extracted );
 
     // Semester only cares about being tagged "unchecked", if so,
     // we add that flag.
-    auto unchecked = std::find_if(extracted.begin(), extracted.end(), [](auto t)
-                                  { return t.key == "tagged" and t.val == "unchecked"; });
-    if (unchecked != extracted.end())
+    auto tags = filterForTagType ( extracted, tagged );
+    auto unchecked =
+            std::find_if ( tags.begin ( ), tags.end ( ), [] ( auto t ) {
+                return t.val == uncheckedSemester;
+            } );
+    if ( unchecked != tags.end ( ) )
     {
-        addFlag("unchecked");
+        addFlag ( uncheckedSemester );
     }
 }
 
-bool const Semester::isChecked() const noexcept
+bool const Semester::isChecked ( ) const noexcept
 {
-    return not hasFlag("unchecked");
+    return not hasFlag ( uncheckedSemester );
 }

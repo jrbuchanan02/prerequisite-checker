@@ -1,129 +1,177 @@
 #include <Course.h++>
+#include <Keywords.h++>
 #include <Registry.h++>
 #include <main.h++>
 
+#include <functional>
 #include <iostream>
 #include <istream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-Course::Course(std::vector<std::string> const &flags, Reference const &reference, double const &hours, std::vector<Reference> const &requisites, std::string const &name, std::string const &desc) noexcept : Flagged(flags), Referred(reference), hours(hours), requisites(requisites), name(name), desc(desc) {}
+using namespace keywords;
+using namespace keywords::keys;
+using namespace keywords::delimiters;
 
-double const &Course::getHours() const noexcept { return hours; }
-
-std::string const &Course::getName() const noexcept { return name; }
-
-std::string const &Course::getDesc() const noexcept { return desc; }
-
-void Course::extract(ExtractedItem const &item)
+void Course::initializeActions ( )
 {
-    application.getLog() << "Extracting course at 0x" << (void *)this << "\n";
-    if (not isCorrectType("course", item))
-    {
-        throw;
-    }
-
-    auto findAll = [&](std::string keyword)
-    {
-        ExtractedItem result;
-        for (Tag tag : item)
-        {
-            if (tag.key == keyword)
-            {
-                result.push_back(tag);
-            }
-        }
-        return result;
+    using namespace std::placeholders;
+    auto bind = [ & ] ( std::function< void ( Course *, Tag ) > fn ) {
+        return std::bind ( fn, this, _1 );
     };
-
-    application.getLog() << "Here.\n";
-    // grab reference
-    getReference().extract(item);
-    application.getLog() << "Here.\n";
-    // find all tags which are reqs
-    ExtractedItem reqs = findAll("reqs");
-    application.getLog() << "Here.\n";
-    std::for_each(reqs.begin(), reqs.end(), [&](auto t)
-                  { requisites.push_back(t.val); });
-    application.getLog() << "Here.\n";
-    // find all tags which are hours
-    ExtractedItem hours = findAll("hours");
-    application.getLog() << "Here.\n";
-    std::for_each(hours.begin(), hours.end(), [&](auto t)
-                  { double found = 0.0;
-        std::stringstream { t.val } >> found; if ( found > 0) { this->hours = found;} });
-    application.getLog() << "Here.\n";
-    // find all tags which are name
-    ExtractedItem names = findAll("name");
-    application.getLog() << "Here.\n";
-    std::for_each(names.begin(), names.end(), [&](auto t)
-                  { name = name + " " + t.val; });
-    application.getLog() << "Here.\n";
-    // find all tags which are desc
-    ExtractedItem descs = findAll("desc");
-    application.getLog() << "Here.\n";
-    std::for_each(descs.begin(), descs.end(), [&](auto t)
-                  { desc = desc + " " + t.val; });
-    application.getLog() << "Here.\n";
-    // find all tags which are tagged
-    ExtractedItem flags = findAll("tagged");
-    application.getLog() << "Here.\n";
-    std::for_each(flags.begin(), flags.end(), [&](auto t)
-                  { addFlag(t.val); });
-    application.getLog() << "Here.\n";
+    actions.push_back ( { ::reqs, bind ( &Course::parseSingleReqs ) } );
+    actions.push_back ( { ::hours, bind ( &Course::parseSingleHour ) } );
+    actions.push_back ( { ::name, bind ( &Course::parseSingleName ) } );
+    actions.push_back ( { ::desc, bind ( &Course::parseSingleDesc ) } );
+    actions.push_back ( { ::tagged, bind ( &Course::parseSingleFlag ) } );
 }
 
-std::vector<RequisitesPointer> const Course::resolveRequisites(Registry const &withRegistry) noexcept
+Course::Course ( ) noexcept { initializeActions ( ); }
+
+Course::Course ( std::vector< std::string > const &flags,
+                 Reference const                  &reference,
+                 double const                     &hours,
+                 std::vector< Reference > const   &requisites,
+                 std::string const                &name,
+                 std::string const                &desc ) noexcept :
+        Flagged ( flags ),
+        Referred ( reference ), hours ( hours ), requisites ( requisites ),
+        name ( name ), desc ( desc )
 {
-    std::vector<RequisitesPointer> output;
-    for (Reference requisites : this->requisites)
+    initializeActions ( );
+}
+
+double const &Course::getHours ( ) const noexcept { return hours; }
+
+std::string const &Course::getName ( ) const noexcept { return name; }
+
+std::string const &Course::getDesc ( ) const noexcept { return desc; }
+
+void Course::extract ( ExtractedItem const &item )
+{
+    application.getLog ( ) << "Extracting course at 0x" << ( void * ) this
+                           << statementDelimiter;
+    throwOnWrongType ( types::course, item );
+    // grab reference
+    Referred::extract ( item );
+
+    auto doActionFor = [ & ] ( std::string tag ) {
+        CourseParseAction action = chooseAction ( tag );
+        for ( Tag t : filterForTagType ( item, tag ) ) { action.action ( t ); }
+    };
+
+    doActionFor ( ::hours );
+    doActionFor ( ::name );
+    doActionFor ( ::desc );
+    doActionFor ( reqs );
+    doActionFor ( tagged );
+}
+
+std::vector< RequisitesPointer > const
+        Course::resolveRequisites ( Registry const &withRegistry ) noexcept
+{
+    std::vector< RequisitesPointer > output;
+    for ( Reference requisites : this->requisites )
     {
-        output.push_back(withRegistry.resolveRequisites(requisites));
+        output.push_back ( withRegistry.resolveRequisites ( requisites ) );
     }
     return output;
 }
 
-bool const Course::meetsRequisites(std::vector<std::vector<Reference>> const &courses, Registry const &registry, Reference &offending)
+bool const Course::meetsRequisites (
+        std::vector< std::vector< Reference > > const &courses,
+        Registry const                                &registry,
+        Reference                                     &offending )
 {
-    // this vector is orientated in semesters going from beginning (courses[0]) to end (courses.back())
+    application.getLog ( ) << "\t\tChecking requisites..."
+                           << statementDelimiter;
 
     // if there are no courses, we do not meet the prerequisites
-    for (Reference requisiteGroup : requisites)
+    for ( Reference requisiteGroup : requisites )
     {
-        RequisitesPointer prequisites = registry.resolveRequisites(requisiteGroup);
-        if (prequisites)
+        application.getLog ( )
+                << "\t\tAsserting that requisites " << requisiteGroup
+                << " passes." << statementDelimiter;
+        RequisitesPointer prequisites =
+                registry.resolveRequisites ( requisiteGroup );
+        if ( prequisites )
         {
             bool foundMatch = false;
 
-            for (auto semester : courses)
+            for ( auto semester : courses )
             {
-                for (Reference course : semester)
+                for ( Reference course : semester )
                 {
-                    CoursePointer pcourse = registry.resolveCourse(course);
-                    if (pcourse)
+                    application.getLog ( )
+                            << "\t\tChecking if previous / concurrent course "
+                            << course << " matches." << statementDelimiter;
+                    CoursePointer pcourse = registry.resolveCourse ( course );
+                    if ( pcourse )
                     {
-                        bool matchState = prequisites->meetsRequisite(*pcourse);
-                        if (matchState)
+                        bool matchState =
+                                prequisites->meetsRequisite ( *pcourse );
+                        if ( matchState )
                         {
-                            application.getLog() << course << " matches " << getReference() << "\n";
+                            application.getLog ( )
+                                    << course << " matches " << getReference ( )
+                                    << statementDelimiter;
                         }
                         foundMatch |= matchState;
                     }
                 }
             }
             offending = requisiteGroup;
-            if (!foundMatch)
+            if ( !foundMatch )
             {
                 return false;
             }
+        } else
+        {
+            application.getLog ( ) << "\t\tCould not find this requisite "
+                                      "group. So the data may be garbage?"
+                                   << statementDelimiter;
+            offending = requisiteGroup;
+            return false;
         }
     }
 
-    return true; // if we are here, either all requisites were met, or there are no requisites
+    return true; // if we are here, either all requisites were met, or there are
+                 // no requisites
 }
 
-bool const Course::hoursHaveAttribute(std::string const &attribute) const noexcept
+bool const Course::hoursHaveAttribute (
+        std::string const &attribute ) const noexcept
 {
-    return hasFlag(attribute);
+    return hasFlag ( attribute );
+}
+
+void Course::parseSingleReqs ( Tag tag ) { requisites.push_back ( tag.val ); }
+
+void Course::parseSingleHour ( Tag tag )
+{
+    double found = 0;
+    std::stringstream { tag.val } >> found;
+    if ( found > 0 )
+    {
+        hours = found;
+    }
+}
+
+void Course::parseSingleName ( Tag tag ) { name = name + space + tag.val; }
+
+void Course::parseSingleDesc ( Tag tag ) { desc = desc + space + tag.val; }
+
+void Course::parseSingleFlag ( Tag tag ) { addFlag ( tag.val ); }
+
+Course::CourseParseAction Course::chooseAction ( std::string tag )
+{
+    for ( auto action : actions )
+    {
+        if ( action.tagName == tag )
+        {
+            return action;
+        }
+    }
+    throw std::runtime_error ( "Unknown tag: " + tag );
 }

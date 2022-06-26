@@ -19,33 +19,32 @@ class Application
     bool verbose = false;
 
     std::ostream mutable *cout = &std::cout;
-    std::istream mutable *cin = &std::cin;
+    std::istream mutable *cin  = &std::cin;
 
-    std::stringstream mutable *dummy = nullptr;
-    std::string filename;
-    std::string reconstructedCommandline;
+    std::stringstream mutable *dummy     = nullptr;
+    std::string                filename  = "./prerequisite-checker";
+    std::string reconstructedCommandline = "./prerequisite-checker";
 
-    int argc;
-    char const *const *argv;
+    int                argc = -1;
+    char const *const *argv = nullptr;
 
-    std::ifstream openManifest(std::string const &);
-
+    std::ifstream openManifest ( std::string const & );
 public:
-    void handleVerbose(int const &);
-    void handleHelping(int const &);
-    void handleRunning(int const &);
-    void handleListing(int const &);
-    void handleLicense(int const &);
-    void handleVersion(int const &);
+    void handleVerbose ( int const & );
+    void handleHelping ( int const & );
+    void handleRunning ( int const & );
+    void handleListing ( int const & );
+    void handleLicense ( int const & );
+    void handleVersion ( int const & );
 
-    Application() noexcept = default;
+    Application ( ) noexcept = default;
 
-    Application(int const, char const *const *const);
+    Application ( int const, char const *const *const );
 
-    std::ostream &getCout() const noexcept;
-    std::istream &getCin() const noexcept;
+    std::ostream &getCout ( ) const noexcept;
+    std::istream &getCin ( ) const noexcept;
 
-    std::ostream &getLog() const noexcept;
+    std::ostream &getLog ( ) const noexcept;
 
-    void run();
+    void run ( );
 };

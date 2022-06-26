@@ -1,5 +1,6 @@
 #include <Course.h++>
 #include <Extracted.h++>
+#include <Keywords.h++>
 #include <Plan.h++>
 #include <Reference.h++>
 #include <Registry.h++>
@@ -15,98 +16,107 @@
 #include <string>
 #include <vector>
 
-void Registry::clear() noexcept
+using keywords::delimiters::statementDelimiter;
+using namespace keywords::types;
+
+void Registry::clear ( ) noexcept
 {
-    courses.clear();
-    requisites.clear();
-    semesters.clear();
-    plans.clear();
+    courses.clear ( );
+    requisites.clear ( );
+    semesters.clear ( );
+    plans.clear ( );
 }
 
-void Registry::copy(Registry const &registry) noexcept
+void Registry::copy ( Registry const &registry ) noexcept
 {
-    for (CoursePointer pcourse : registry.courses)
+    for ( CoursePointer pcourse : registry.courses )
     {
-        courses.push_back(CoursePointer(new Course(*pcourse)));
+        courses.push_back ( CoursePointer ( new Course ( *pcourse ) ) );
     }
-    for (RequisitesPointer prequisites : registry.requisites)
+    for ( RequisitesPointer prequisites : registry.requisites )
     {
-        requisites.push_back(RequisitesPointer(new Requisites(*prequisites)));
+        requisites.push_back (
+                RequisitesPointer ( new Requisites ( *prequisites ) ) );
     }
-    for (SemesterPointer psemester : registry.semesters)
+    for ( SemesterPointer psemester : registry.semesters )
     {
-        semesters.push_back(SemesterPointer(new Semester(*psemester)));
+        semesters.push_back ( SemesterPointer ( new Semester ( *psemester ) ) );
     }
-    for (PlanPointer pplan : registry.plans)
+    for ( PlanPointer pplan : registry.plans )
     {
-        plans.push_back(PlanPointer(new Plan(*pplan)));
+        plans.push_back ( PlanPointer ( new Plan ( *pplan ) ) );
     }
 }
 
-void Registry::parse(Extracted const &extracted)
+void Registry::parse ( Extracted const &extracted )
 {
-    application.getLog() << "Parsing begin.\n";
-    application.getLog() << "Parsing courses...\n";
+    application.getLog ( ) << "Parsing begin." << statementDelimiter;
+    application.getLog ( ) << "Parsing courses..." << statementDelimiter;
     std::integral auto counter = 0;
-    for (ExtractedItem item : extracted.getTagsOfType("course"))
+    for ( ExtractedItem item : extracted.getTagsOfType ( course ) )
     {
-        application.getLog() << "Extracting course " << ++counter << "\n";
-        CoursePointer pointer = CoursePointer(new Course());
-        pointer->extract(item);
-        courses.push_back(pointer);
+        application.getLog ( )
+                << "Extracting course " << ++counter << statementDelimiter;
+        CoursePointer pointer = CoursePointer ( new Course ( ) );
+        pointer->extract ( item );
+        courses.push_back ( pointer );
     }
-    application.getLog() << "Parsing requisites...\n";
-    for (ExtractedItem item : extracted.getTagsOfType("requisites"))
+    application.getLog ( ) << "Parsing requisites..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( ::requisites ) )
     {
-        RequisitesPointer pointer = RequisitesPointer(new Requisites());
-        pointer->extract(item);
-        requisites.push_back(pointer);
+        RequisitesPointer pointer = RequisitesPointer ( new Requisites ( ) );
+        pointer->extract ( item );
+        requisites.push_back ( pointer );
     }
-    application.getLog() << "Parsing semesters...\n";
-    for (ExtractedItem item : extracted.getTagsOfType("semester"))
+    application.getLog ( ) << "Parsing semesters..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( semester ) )
     {
-        SemesterPointer pointer = SemesterPointer(new Semester());
-        pointer->extract(item);
-        semesters.push_back(pointer);
+        SemesterPointer pointer = SemesterPointer ( new Semester ( ) );
+        pointer->extract ( item );
+        semesters.push_back ( pointer );
     }
-    application.getLog() << "Parsing plans...\n";
-    for (ExtractedItem item : extracted.getTagsOfType("plan"))
+    application.getLog ( ) << "Parsing plans..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( plan ) )
     {
-        PlanPointer pointer = PlanPointer(new Plan());
-        pointer->extract(item);
-        plans.push_back(pointer);
+        PlanPointer pointer = PlanPointer ( new Plan ( ) );
+        pointer->extract ( item );
+        plans.push_back ( pointer );
     }
-    application.getLog() << "Parsing complete.\n";
+    application.getLog ( ) << "Parsing complete." << statementDelimiter;
 }
 
-void Registry::runTests() const noexcept
+void Registry::runTests ( ) const noexcept
 {
-    for (PlanPointer pplan : plans)
+    for ( PlanPointer pplan : plans )
     {
-        application.getCout() << pplan->getPlanMessage(*this) << "\n";
-        application.getCout() << "Press enter to test the next plan.\n";
-        application.getCin().get();
+        application.getCout ( )
+                << pplan->getPlanMessage ( *this ) << statementDelimiter;
+        application.getCout ( )
+                << "Press enter to test the next plan." << statementDelimiter;
+        application.getCin ( ).get ( );
     }
 }
 
-std::vector<Reference> const Registry::semestersInOrder() const noexcept
+std::vector< Reference > const Registry::semestersInOrder ( ) const noexcept
 {
-    std::vector<Reference> output;
-    for (SemesterPointer const &psemester : semesters)
+    std::vector< Reference > output;
+    for ( SemesterPointer const &psemester : semesters )
     {
-        if (psemester)
+        if ( psemester )
         {
-            output.push_back(((Semester const)*psemester).getReference());
+            output.push_back (
+                    ( ( Semester const ) *psemester ).getReference ( ) );
         }
     }
     return output;
 }
 
-CoursePointer Registry::resolveCourse(Reference const &reference) const noexcept
+CoursePointer
+        Registry::resolveCourse ( Reference const &reference ) const noexcept
 {
-    for (CoursePointer const &pcourse : courses)
+    for ( CoursePointer const &pcourse : courses )
     {
-        if (((Course const)*pcourse).getReference() == reference)
+        if ( ( ( Course const ) *pcourse ).getReference ( ) == reference )
         {
             return pcourse;
         }
@@ -114,33 +124,42 @@ CoursePointer Registry::resolveCourse(Reference const &reference) const noexcept
     return nullptr;
 }
 
-std::vector<Reference> const Registry::knownCourses() const noexcept
+std::vector< Reference > const Registry::knownCourses ( ) const noexcept
 {
-    std::vector<Reference> known(courses.size());
-    for (auto i = 0LLU; i < courses.size(); i++)
+    std::vector< Reference > known ( courses.size ( ) );
+    for ( auto i = 0LLU; i < courses.size ( ); i++ )
     {
-        known[i] = ((Course const)*courses[i]).getReference();
+        known [ i ] = ( ( Course const ) *courses [ i ] ).getReference ( );
     }
     return known;
 }
 
-RequisitesPointer Registry::resolveRequisites(Reference const &reference) const noexcept
+RequisitesPointer Registry::resolveRequisites (
+        Reference const &reference ) const noexcept
 {
-    for (RequisitesPointer const &prequisites : requisites)
+    application.getLog ( ) << "Received request to resolve reference \""
+                           << reference << "\"" << statementDelimiter;
+    for ( RequisitesPointer const &pRequisites : requisites )
     {
-        if (((Requisites const)*prequisites).getReference() == reference)
+        auto requisiteReference =
+                ( ( Requisites const ) *pRequisites ).getReference ( );
+        application.getLog ( )
+                << "Checking if \"" << requisiteReference << "\" is \""
+                << reference << "\"" << statementDelimiter;
+        if ( requisiteReference == reference )
         {
-            return prequisites;
+            return pRequisites;
         }
     }
     return nullptr;
 }
 
-SemesterPointer Registry::resolveSemester(Reference const &reference) const noexcept
+SemesterPointer
+        Registry::resolveSemester ( Reference const &reference ) const noexcept
 {
-    for (SemesterPointer const &psemester : semesters)
+    for ( SemesterPointer const &psemester : semesters )
     {
-        if (((Semester const)*psemester).getReference() == reference)
+        if ( ( ( Semester const ) *psemester ).getReference ( ) == reference )
         {
             return psemester;
         }
@@ -148,11 +167,11 @@ SemesterPointer Registry::resolveSemester(Reference const &reference) const noex
     return nullptr;
 }
 
-PlanPointer Registry::resolvePlan(Reference const &reference) const noexcept
+PlanPointer Registry::resolvePlan ( Reference const &reference ) const noexcept
 {
-    for (PlanPointer const &pplan : plans)
+    for ( PlanPointer const &pplan : plans )
     {
-        if (((Plan const)*pplan).getReference() == reference)
+        if ( ( ( Plan const ) *pplan ).getReference ( ) == reference )
         {
             return pplan;
         }
@@ -160,16 +179,16 @@ PlanPointer Registry::resolvePlan(Reference const &reference) const noexcept
     return nullptr;
 }
 
-Registry &Registry::operator=(Registry const &registry) noexcept
+Registry &Registry::operator= ( Registry const &registry ) noexcept
 {
-    this->clear();
-    this->copy(registry);
+    this->clear ( );
+    this->copy ( registry );
     return *this;
 }
 
-Registry &Registry::operator=(Registry &&registry) noexcept
+Registry &Registry::operator= ( Registry &&registry ) noexcept
 {
-    this->operator=((Registry &)registry);
-    registry.clear();
+    this->operator= ( ( Registry & ) registry );
+    registry.clear ( );
     return *this;
 }

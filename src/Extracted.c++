@@ -6,10 +6,12 @@
  * @version 1
  * @date 2022-06-24
  *
- * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed above.
+ * @copyright Copyright (C) 2022. Intellectual property of the author(s) listed
+ * above.
  *
  */
 
+#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -20,126 +22,147 @@
 #include <vector>
 
 #include <Extracted.h++>
+#include <Keywords.h++>
 #include <main.h++>
 
 #include <yaml-cpp/yaml.h>
 
-static std::string const typeKey = "type";
-static std::string const refKey = "ref";
-static std::string const nameKey = "name";
-static std::string const descKey = "desc";
-static std::string const hoursKey = "hours";
-static std::string const reqsKey = "reqs";
-static std::string const taggedKey = "tagged";
-static std::string const commentKey = "#";
-static std::string const reqKey = "req";
-static std::string const coursesKey = "courses";
-static std::string const requisitesKey = "requisites";
-static std::string const plansKey = "plans";
-static std::string const semestersKey = "semesters";
+using namespace keywords::delimiters;
+using namespace keywords::keys;
+using namespace keywords::types;
+using namespace keywords::prefixes;
+using namespace keywords::tags;
+using namespace keywords::manipulators;
 
-static std::string const beginPrefix = "";
-static std::string const endPrefix = "end";
-
-static std::string const course = "course";
-static std::string const requisites = "reqs";
-static std::string const semester = "semester";
-static std::string const plan = "plan";
-static std::string const manifest = "manifest";
-
-static std::string const takenPreviously = "pre";
-static std::string const takenConcurrent = "con";
-
-static std::string const courseDelimiter = "or";
-static std::string const planReferenceEnd = ":";
-static std::string const planCourseDelimiter = "and";
-
-std::string beginOf(std::string name)
-{
-    return beginPrefix + name;
-}
-
-std::string endOf(std::string name)
-{
-    return endPrefix + name;
-}
-
-static std::vector<std::string> const types = {
-    course,
-    requisites,
-    semester,
-    plan,
-    manifest,
+std::string pcfExtensions [] = {
+        "txt",
+        "pcf",
+        "dat",
 };
 
-// extracts a single element from a single file.
-void PCFExtracted::extractSingle(std::istream &i)
-{
-    std::vector<std::string> possibleBegins = types;
-    std::vector<std::string> possibleEnds = types;
-    std::for_each(possibleBegins.begin(), possibleBegins.end(), [](std::string &s)
-                  { s = beginOf(s); });
-    std::for_each(possibleEnds.begin(), possibleEnds.end(), [](std::string &s)
-                  { s = endOf(s); });
+std::string ymlExtensions [] = {
+        "yaml",
+        "yml",
+        "json",
+};
 
+bool matchesFileExtension ( std::string const               &filename,
+                            std::random_access_iterator auto begin,
+                            std::random_access_iterator auto end )
+{
+    bool found = false;
+    std::for_each ( begin, end, [ & ] ( auto item ) {
+        if ( filename.ends_with ( item ) )
+        {
+            found = true;
+        }
+    } );
+    return found;
+}
+
+bool isPCFFile ( std::string const &filename )
+{
+    return matchesFileExtension ( filename,
+                                  std::begin ( pcfExtensions ),
+                                  std::end ( pcfExtensions ) );
+}
+
+bool isYMLFile ( std::string const &filename )
+{
+    return matchesFileExtension ( filename,
+                                  std::begin ( ymlExtensions ),
+                                  std::end ( ymlExtensions ) );
+}
+
+ExtractedPointer open ( std::string const &filename )
+{
+    if ( isPCFFile ( filename ) )
+    {
+        return ExtractedPointer ( new PCFExtracted ( ) );
+    }
+    if ( isYMLFile ( filename ) )
+    {
+        return ExtractedPointer ( new YAMLExtracted ( ) );
+    }
+    return nullptr;
+}
+
+// extracts a single element from a single file.
+void PCFExtracted::extractSingle ( std::istream &i )
+{
+    application.getLog ( ) << "\tAttempting to extract possible tag."
+                           << statementDelimiter;
     std::string line = "";
 
-    auto getLine = [&]()
-    {
-        std::getline(i, line);
+    auto getLine = [ & ] ( ) {
+        std::getline ( i, line, statementDelimiter.front ( ) );
     };
 
-    bool foundSomething = false;
-    std::string foundKey = "";
-    while (not foundSomething and not i.eof())
+    bool        foundSomething = false;
+    std::string foundKey       = "";
+    while ( not foundSomething and not i.eof ( ) )
     {
-        getLine();
-        std::for_each(possibleBegins.begin(), possibleBegins.end(), [&](auto s)
-                      { if ( line.starts_with(s) and foundKey == "") {foundSomething = true; foundKey = s;} });
+        application.getLog ( )
+                << "\tGrabbing next available line..." << statementDelimiter;
+        getLine ( );
+        application.getLog ( )
+                << "\tRead \"" << line << "\". Looking for something..."
+                << statementDelimiter;
+        for ( auto begin : begins ( ) )
+        {
+            if ( line.starts_with ( begin ) )
+            {
+                foundKey       = begin;
+                foundSomething = true;
+                break;
+            }
+        }
     }
-    if (not foundSomething)
+    if ( not foundSomething )
     {
-        application.getLog() << "Did not find tag.\n";
+        application.getLog ( ) << "\tDid not find tag." << statementDelimiter;
         return;
     }
-
-    while (not i.eof())
+    // FIXME #1: PCFExtracted sometimes finds data tags that do not exist. There
+    // is a workaround below where we do not add the extracted item if there is
+    // only one element, but, we still go through the logic of parsing the
+    // key to find the ghost tag.
+    while ( not i.eof ( ) )
     {
-        application.getLog() << "Line marks beginning of a " << foundKey << "\n";
-        getAllTags().push_back({});
-        ExtractedItem &item = getAllTags().back();
-        item.push_back(Tag{typeKey, foundKey});
+        application.getLog ( ) << "\tLine marks beginning of a " << foundKey
+                               << statementDelimiter;
+        getAllTags ( ).push_back ( { } );
+        ExtractedItem &item = getAllTags ( ).back ( );
+        item.push_back ( Tag { type, foundKey } );
         // if we found Requisites, there may be some extra processing...
-        bool foundRequisites = foundKey == beginOf(requisites);
-        bool foundPlan = foundKey == beginOf(plan);
-        bool foundEnd = false;
+        bool               foundRequisites = foundKey == beginOf ( requisites );
+        bool               foundPlan       = foundKey == beginOf ( plan );
+        bool               foundEnd        = false;
         std::integral auto currentRequisiteID = 0;
-        while (not foundEnd and not i.eof())
+        while ( not foundEnd and not i.eof ( ) )
         {
-            getLine();
-            std::stringstream lineParser{line};
-            std::string keyword = "";
+            getLine ( );
+            std::stringstream lineParser { line };
+            std::string       keyword = "";
             lineParser >> keyword;
-            application.getLog() << "This line's keyword is \"" << keyword << "\"\n";
-            if (keyword.starts_with(commentKey))
+            application.getLog ( ) << "\tThis line's keyword is \"" << keyword
+                                   << "\"" << statementDelimiter;
+            if ( keyword.starts_with ( comment ) )
             {
                 continue;
             }
             std::string rest = "";
-            rest = line.substr(line.find(keyword) + keyword.size());
-            while (rest.starts_with(" "))
-            {
-                rest = rest.substr(1);
-            }
-            while (rest.ends_with(" ") or rest.ends_with("\n"))
-            {
-                rest = rest.substr(0, rest.size() - 1);
-            }
-            if (keyword == endOf(foundKey))
+            rest = line.substr ( line.find ( keyword ) + keyword.size ( ) );
+            rest = removeAllLeading ( space, rest );
+            std::string notAllowedToTrail [] = { " ", "\n" };
+            rest = removeAllTrailing ( std::begin ( notAllowedToTrail ),
+                                       std::end ( notAllowedToTrail ),
+                                       rest );
+            if ( keyword == endOf ( foundKey ) )
             {
                 foundEnd = true;
             }
-            if (foundRequisites and keyword == reqKey)
+            if ( foundRequisites and keyword == req )
             {
                 // extra processing here.
                 // we need different keys for when a requisite must
@@ -150,146 +173,171 @@ void PCFExtracted::extractSingle(std::istream &i)
                 // Calculus II. So, we keep an integral ID of each requisite.
                 // if the counter is the same, the courses both satisfy the same
                 // set of requirements.
-                std::string id = std::to_string(currentRequisiteID++);
-                std::string key = keyword + " " + id;
-                std::stringstream restParser{rest};
-                while (restParser)
+                std::stringstream restParser { rest };
+                std::string       id  = std::to_string ( currentRequisiteID++ );
+                std::string       key = keyword + space + id;
+                application.getLog ( )
+                        << "\tKey is now " << key << statementDelimiter;
+                while ( restParser )
                 {
                     std::string requisite = "";
-                    while (requisite.empty() or (not requisite.ends_with(courseDelimiter) and restParser))
+                    std::string usedKey   = key;
+                    while ( restParser
+                            and not requisite.ends_with (
+                                    requisiteCourseDelimiter ) )
                     {
-                        restParser >> requisite;
+                        std::string temp = "";
+                        restParser >> temp;
+                        requisite += " " + temp;
                     }
+                    requisite = removeAllLeading ( space, requisite );
 
-                    std::stringstream requisiteParser{requisite};
-                    std::string nextTwo[2]{"", ""};
-                    requisiteParser >> nextTwo[0] >> nextTwo[1];
-                    if (nextTwo[0] == takenPreviously or nextTwo[1] == takenPreviously)
+                    std::stringstream requisiteParser { requisite };
+                    std::string       nextTwo [ 2 ] { "", "" };
+                    requisiteParser >> nextTwo [ 0 ] >> nextTwo [ 1 ];
+                    if ( eitherEqual ( nextTwo [ 0 ],
+                                       nextTwo [ 1 ],
+                                       takenPreviously ) )
                     {
-                        key += " " + takenPreviously;
+                        usedKey += space + takenPreviously;
                     }
-                    if (nextTwo[0] == takenConcurrent or nextTwo[1] == takenConcurrent)
+                    if ( eitherEqual ( nextTwo [ 0 ],
+                                       nextTwo [ 1 ],
+                                       takenConcurrent ) )
                     {
-                        key += " " + takenConcurrent;
+                        usedKey += space + takenConcurrent;
                     }
+                    // remove leading spaces, leading tags, trailing spaces
+                    // and trailing syntax from requisite.
+                    std::string requisiteNonstarter [] = { " ",
+                                                           takenPreviously,
+                                                           takenConcurrent };
+                    std::string requisiteNonender []   = {
+                              " ",
+                              "\n",
+                              requisiteCourseDelimiter };
 
-                    if (requisite.find(takenPreviously) != std::string::npos)
-                    {
-                        application.getLog() << "This requisite may be taken previously.\n";
-                        std::unsigned_integral auto position = requisite.find_last_of(takenPreviously);
-                        requisite = requisite.substr(position + takenPreviously.size());
-                    }
-                    if (requisite.find(takenConcurrent) != std::string::npos)
-                    {
-                        application.getLog() << "This requisite may be taken concurrent.\n";
-                        std::unsigned_integral auto position = requisite.find_last_of(takenConcurrent);
-                        requisite = requisite.substr(position + takenConcurrent.size());
-                    }
+                    requisite = removeAllLeading (
+                            std::begin ( requisiteNonstarter ),
+                            std::end ( requisiteNonstarter ),
+                            requisite );
+                    requisite = removeAllTrailing (
+                            std::begin ( requisiteNonender ),
+                            std::end ( requisiteNonender ),
+                            requisite );
 
-                    item.push_back(Tag{key, requisite});
+                    application.getLog ( )
+                            << "\tAdding key/value pair " << usedKey << " and "
+                            << requisite << statementDelimiter;
+                    item.push_back ( Tag { usedKey, requisite } );
                 }
 
                 continue;
             }
-            if (foundPlan and keyword == semester)
+            if ( foundPlan and keyword == semester )
             {
                 // take rest from beginning to the ending
                 // then split each other course reference on the
                 // line and add it as a tag.
-                std::string key = rest.substr(0, rest.find(planReferenceEnd));
-                application.getLog() << "Key is now " << key << "\n";
-                std::stringstream restParser{rest.substr(rest.find(planReferenceEnd) + planReferenceEnd.size())};
-                application.getLog() << "Parsing all information from " << restParser.str() << "\n";
-                while (restParser)
+                std::string key =
+                        rest.substr ( 0, rest.find ( planSemesterDelimiter ) );
+                application.getLog ( )
+                        << "\tKey is now " << key << statementDelimiter;
+                std::stringstream restParser {
+                        rest.substr ( rest.find ( planSemesterDelimiter )
+                                      + planSemesterDelimiter.size ( ) ) };
+                application.getLog ( )
+                        << "\tParsing all information from "
+                        << restParser.str ( ) << statementDelimiter;
+                while ( restParser )
                 {
                     std::string val = "";
-                    while (restParser and not val.ends_with(courseDelimiter) and not val.ends_with(planCourseDelimiter))
+                    while ( restParser
+                            and not val.ends_with ( planCourseDelimiter )
+                            and not val.ends_with ( requisiteCourseDelimiter ) )
                     {
                         std::string temp = "";
                         restParser >> temp;
                         val += " " + temp;
-                        application.getLog() << "value is now " << val << "\n";
+                        application.getLog ( ) << "\tValue is now " << val
+                                               << statementDelimiter;
                     }
-                    if (val.ends_with(courseDelimiter))
-                    {
-                        val = val.substr(0, val.find(courseDelimiter));
-                    }
-                    if (val.ends_with(planCourseDelimiter) and planCourseDelimiter != courseDelimiter)
-                    {
-                        val = val.substr(0, val.find(planCourseDelimiter));
-                    }
-                    item.push_back(Tag{key, val});
+                    val = removeTrailing ( requisiteCourseDelimiter, val );
+                    val = removeTrailing ( planCourseDelimiter, val );
+                    val = removeAllLeading ( space, val );
+                    val = removeAllTrailing ( space, val );
+
+                    item.push_back ( Tag { key, val } );
                 }
             }
-            application.getLog() << "Added key/value pair " << keyword << " and " << rest << "\n";
-            if (not foundEnd and not keyword.empty() and not rest.empty())
+            application.getLog ( ) << "\tAdded key/value pair " << keyword
+                                   << " and " << rest << statementDelimiter;
+            if ( not foundEnd and not keyword.empty ( ) and not rest.empty ( ) )
             {
-                item.push_back({keyword, rest});
+                item.push_back ( { keyword, rest } );
             }
         }
-        if (getAllTags().back().size() < 2 and getAllTags().back().front().val != semester)
+        // Sanity check: all ExtractedItems should have at least two tags. One
+        // for type and one for reference.
+        if ( getAllTags ( ).back ( ).size ( ) < 2 )
         {
-            application.getLog() << "Found empty " << getAllTags().back().front().val << ".\n";
-            getAllTags().pop_back();
+            application.getLog ( )
+                    << "\tFound empty " << getAllTags ( ).back ( ).front ( ).val
+                    << statementDelimiter;
+            getAllTags ( ).pop_back ( );
         }
-        if (getAllTags().back().front().key == "type" and getAllTags().back().front().val == "manifest")
+        if ( getAllTags ( ).back ( ).front ( ).key == type
+             and getAllTags ( ).back ( ).front ( ).val == manifest )
         {
-            application.getLog() << "\tThis data is a manifest, opening all relavent files...\n";
-            for (auto tag : getAllTags().back())
+            application.getLog ( ) << "\tThis data is a manifest, opening all "
+                                      "relavent files..."
+                                   << statementDelimiter;
+            for ( auto tag : getAllTags ( ).back ( ) )
             {
-                if (tag.key == typeKey)
+                if ( tag.key == type )
                 {
                     continue;
                 }
-                application.getLog() << "\tStatus of file " << tag.val << ": ";
-                std::ifstream file{tag.val};
-                if (file and not file.bad())
+                application.getLog ( ) << "\tReading file " << tag.val << "...";
+                auto pointer = open ( tag.val );
+                if ( not pointer )
                 {
-                    application.getLog() << "Reading...\n";
-                    extractSingle(file);
-                }
-                else
+                    application.getLog ( )
+                            << " File of unknown format." << statementDelimiter;
+                    continue;
+                } else
                 {
-                    application.getLog() << "Failed to open.\n";
+                    application.getLog ( ) << statementDelimiter;
                 }
+                std::ifstream file { tag.val };
+                pointer->extractFrom ( file );
+                *this += *pointer;
             }
         }
     }
 }
 
-void PCFExtracted::extractFrom(std::istream &i)
+void PCFExtracted::extractFrom ( std::istream &i )
 {
-    application.getLog() << "Extracting file(s)...\n";
-    while (not i.eof())
+    application.getLog ( ) << "Extracting file(s)..." << statementDelimiter;
+    while ( not i.eof ( ) )
     {
-        application.getLog() << "\tFound Tag?\n";
-        extractSingle(i);
+        application.getLog ( ) << "\tFound Tag?" << statementDelimiter;
+        extractSingle ( i );
     }
-    application.getLog() << "Extraction finished.\n";
+    application.getLog ( ) << "Extraction finished." << statementDelimiter;
 }
 
-void YAMLExtracted::extractFrom(std::istream &i)
+ExtractedItem filterForTagType ( ExtractedItem const &items,
+                                 std::string const   &key )
 {
-    auto nodes = YAML::LoadAll(i);
-    for (auto node : nodes)
+    ExtractedItem result;
+    for ( Tag tag : items )
     {
-        if (not node.IsSequence())
+        if ( tag.key == key )
         {
-            application.getCout() << "Wrong YAML Format.\n";
-            return;
-        }
-        for (auto item = node.begin(); item != node.end(); item++)
-        {
-            getAllTags().push_back({});
-            ExtractedItem &extracted = getAllTags().back();
-            std::string keyword = (*item)["type"].as<std::string>();
-            bool foundRequisites = keyword == beginOf(requisites);
-            bool foundPlan = keyword == beginOf(plan);
-
-            for (auto tags = item->begin(); tags != item->end(); tags++)
-            {
-                // processing.
-            }
+            result.push_back ( tag );
         }
     }
+    return result;
 }

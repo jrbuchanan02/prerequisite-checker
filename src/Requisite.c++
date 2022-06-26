@@ -1,4 +1,5 @@
 #include <Flagged.h++>
+#include <Keywords.h++>
 #include <Reference.h++>
 #include <Requisite.h++>
 
@@ -6,27 +7,36 @@
 #include <sstream>
 #include <string>
 
-bool const Requisite::allowPreviously() const noexcept { return hasFlag("pre"); }
-bool const Requisite::allowConcurrent() const noexcept { return hasFlag("con"); }
+using keywords::tags::takenConcurrent;
+using keywords::tags::takenPreviously;
 
-Reference const &Requisite::getCourse() const noexcept { return course; }
+bool const Requisite::allowPreviously ( ) const noexcept
+{
+    return hasFlag ( takenPreviously );
+}
+bool const Requisite::allowConcurrent ( ) const noexcept
+{
+    return hasFlag ( takenConcurrent );
+}
 
-void Requisite::extract(ExtractedItem const &extracted)
+Reference const &Requisite::getCourse ( ) const noexcept { return course; }
+
+void Requisite::extract ( ExtractedItem const &extracted )
 {
     // find the element at counter.
-    if (counter < 0 or counter >= extracted.size())
+    if ( counter < 0 or counter >= extracted.size ( ) )
     {
         throw;
     }
-    Tag information = extracted.at(counter);
-    if (information.key.find("pre") != std::string::npos)
+    Tag information = extracted.at ( counter );
+    if ( information.key.find ( takenPreviously ) != std::string::npos )
     {
-        addFlag("pre");
+        addFlag ( takenPreviously );
     }
-    if (information.key.find("con") != std::string::npos)
+    if ( information.key.find ( takenConcurrent ) != std::string::npos )
     {
-        addFlag("con");
+        addFlag ( takenConcurrent );
     }
 
-    course = Reference(information.val);
+    course = Reference ( information.val );
 }
