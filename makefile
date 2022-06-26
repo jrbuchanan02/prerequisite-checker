@@ -37,7 +37,7 @@ warning_flags = -Wall -Wpedantic -Wextra
 
 windows: compiler = g++
 linux: compiler = g++-10
-compiler_switches = --std=c++20 -Ofast $(include_flags) $(warning_flags)
+compiler_switches = --std=c++20 -O3 $(include_flags) $(warning_flags)
 
 define source_from_bin_name = 
 	$(patsubst $(bin_location)%,%,$(patsubst %$(object_extension),%$(call $(extension),@),$@))
