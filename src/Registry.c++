@@ -1,13 +1,13 @@
-#include "Registry.h++"
-
-#include "Course.h++"
-#include "ExtractionMethods.h++"
-#include "Keyword.h++"
-#include "Plan.h++"
-#include "Reference.h++"
-#include "Requisites.h++"
-#include "Semester.h++"
-#include "Serial.h++"
+#include <Course.h++>
+#include <Extracted.h++>
+#include <Keywords.h++>
+#include <Plan.h++>
+#include <Reference.h++>
+#include <Registry.h++>
+#include <Requisites.h++>
+#include <Semester.h++>
+#include <Serial.h++>
+#include <main.h++>
 
 #include <fstream>
 #include <iostream>
@@ -16,115 +16,179 @@
 #include <string>
 #include <vector>
 
-void Registry::clear ( ) noexcept {
-    while ( !courses.empty ( ) ) {
-        delete courses.back ( );
-        courses.pop_back ( );
-    } while ( !requisites.empty ( ) ) {
-        delete requisites.back ( );
-        requisites.pop_back ( );
-    } while ( !semesters.empty ( ) ) {
-        delete semesters.back ( );
-        semesters.pop_back ( );
-    } while ( !plans.empty ( ) ) {
-        delete plans.back ( );
-        plans.pop_back ( );
+using keywords::delimiters::statementDelimiter;
+using namespace keywords::types;
+
+void Registry::clear ( ) noexcept
+{
+    courses.clear ( );
+    requisites.clear ( );
+    semesters.clear ( );
+    plans.clear ( );
+}
+
+void Registry::copy ( Registry const &registry ) noexcept
+{
+    for ( CoursePointer pcourse : registry.courses )
+    {
+        courses.push_back ( CoursePointer ( new Course ( *pcourse ) ) );
+    }
+    for ( RequisitesPointer prequisites : registry.requisites )
+    {
+        requisites.push_back (
+                RequisitesPointer ( new Requisites ( *prequisites ) ) );
+    }
+    for ( SemesterPointer psemester : registry.semesters )
+    {
+        semesters.push_back ( SemesterPointer ( new Semester ( *psemester ) ) );
+    }
+    for ( PlanPointer pplan : registry.plans )
+    {
+        plans.push_back ( PlanPointer ( new Plan ( *pplan ) ) );
     }
 }
 
-void Registry::copy ( Registry const &registry ) noexcept {
-    for ( Course *pcourse : registry.courses ) {
-        courses.push_back ( new Course ( *pcourse ) );
-    } for ( Requisites *prequisites : registry.requisites ) {
-        requisites.push_back ( new Requisites ( *prequisites ) );
-    } for ( Semester *psemester : registry.semesters ) {
-        semesters.push_back ( new Semester ( *psemester ) );
-    } for ( Plan *pplan : registry.plans ) {
-        plans.push_back ( new Plan ( *pplan ) );
+void Registry::parse ( Extracted const &extracted )
+{
+    application.getLog ( ) << "Parsing begin." << statementDelimiter;
+    application.getLog ( ) << "Parsing courses..." << statementDelimiter;
+    std::integral auto counter = 0;
+    for ( ExtractedItem item : extracted.getTagsOfType ( course ) )
+    {
+        application.getLog ( )
+                << "Extracting course " << ++counter << statementDelimiter;
+        CoursePointer pointer = CoursePointer ( new Course ( ) );
+        pointer->extract ( item );
+        courses.push_back ( pointer );
+    }
+    application.getLog ( ) << "Parsing requisites..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( ::requisites ) )
+    {
+        RequisitesPointer pointer = RequisitesPointer ( new Requisites ( ) );
+        pointer->extract ( item );
+        requisites.push_back ( pointer );
+    }
+    application.getLog ( ) << "Parsing semesters..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( semester ) )
+    {
+        SemesterPointer pointer = SemesterPointer ( new Semester ( ) );
+        pointer->extract ( item );
+        semesters.push_back ( pointer );
+    }
+    application.getLog ( ) << "Parsing plans..." << statementDelimiter;
+    for ( ExtractedItem item : extracted.getTagsOfType ( plan ) )
+    {
+        PlanPointer pointer = PlanPointer ( new Plan ( ) );
+        pointer->extract ( item );
+        plans.push_back ( pointer );
+    }
+    application.getLog ( ) << "Parsing complete." << statementDelimiter;
+}
+
+void Registry::runTests ( ) const noexcept
+{
+    for ( PlanPointer pplan : plans )
+    {
+        application.getCout ( )
+                << pplan->getPlanMessage ( *this ) << statementDelimiter;
+        application.getCout ( )
+                << "Press enter to test the next plan." << statementDelimiter;
+        application.getCin ( ).get ( );
     }
 }
 
-template < typename T >
-void slurpFile ( std::vector < T * > &vector , std::ifstream &ifstream ) {
-    T *data = new T ( );
-    ifstream >> *data;
-    vector.push_back ( data );
-}
-
-
-std::istream &Registry::extract ( std::istream &istream ) {
-    // we have four keywords that take up one line.
-    // courses
-    // requisites
-    // semesters
-    // plans
-    // 
-    // each take an argument which is the file to slurp with the items. 
-
-    auto maskaroo = [ & ] ( std::string const &keyword , std::string const &path ) {
-        std::ifstream file ( path );
-        if ( keyword == "courses" ) {
-            slurpFile < Course > ( this->courses , file );
-        } else if ( keyword == "requisites" ) {
-            slurpFile < Requisites > ( this->requisites , file );
-        } else if ( keyword == "semesters" ) {
-            slurpFile < Semester > ( this->semesters , file );
-        } else if ( keyword == "plans" ) {
-            slurpFile < Plan > ( this->plans , file );
+std::vector< Reference > const Registry::semestersInOrder ( ) const noexcept
+{
+    std::vector< Reference > output;
+    for ( SemesterPointer const &psemester : semesters )
+    {
+        if ( psemester )
+        {
+            output.push_back (
+                    ( ( Semester const ) *psemester ).getReference ( ) );
         }
-    };
-
-    auto getPath = [ ] ( std::stringstream &is , std::string const &keyword ) -> std::string {
-        std::string line = is.str ( );
-        return line.substr ( line.find ( keyword ) + keyword.size ( ) + 1 );
-    };
-
-    auto interface = [ & ] ( std::stringstream &is , std::string const keyword ) {
-        maskaroo ( keyword , getPath ( is , keyword ) );
-    };
-
-    auto coursesFunction = [ & ] ( std::stringstream &is , Serial & ) {
-        interface ( is , "courses" );
-    };
-    auto requisitesFunction = [ & ] ( std::stringstream &is , Serial & ) {
-        interface ( is , "requisites" );
-    };
-    auto semestersFunction = [ & ] ( std::stringstream &is , Serial & ) {
-        interface ( is , "semesters" );
-    };
-
-    auto plansFunction = [ & ] ( std::stringstream &is , Serial & ) {
-        interface ( is , "plans" );
-    };
-
-    static Keyword keywords [ ] = {
-        Keyword ( "courses" , std::function ( coursesFunction ) ) ,
-        Keyword ( "requisites" , std::function ( requisitesFunction ) ) ,
-        Keyword ( "semesters" , std::function ( semestersFunction ) ) ,
-        Keyword ( "plans" , std::function ( plansFunction ) ) ,
-    };
-
-    std::stringstream line;
-    std::string temp;
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
-        line >> temp;
-        if ( isComment ( temp ) ) continue;
-        else for ( auto i = 0LLU; i < sizeof ( keywords ) / sizeof ( keywords [ 0 ] ); i++ ) {
-            if ( temp == keywords [ i ].keyword ) {
-                keywords [ i ].function ( line , *this );
-                break;
-            }
-        }
-    } while ( !istream.eof ( ) );
-    return istream;
+    }
+    return output;
 }
 
-void Registry::runTests ( ) const noexcept {
-    for ( Plan *pplan : plans ) {
-        std::cout << pplan->getPlanMessage ( *this ) << "\n";
-        std::cout << "Press enter to test the next plan.\n";
-        std::cin.get ( );
+CoursePointer
+        Registry::resolveCourse ( Reference const &reference ) const noexcept
+{
+    for ( CoursePointer const &pcourse : courses )
+    {
+        if ( ( ( Course const ) *pcourse ).getReference ( ) == reference )
+        {
+            return pcourse;
+        }
     }
+    return nullptr;
+}
+
+std::vector< Reference > const Registry::knownCourses ( ) const noexcept
+{
+    std::vector< Reference > known ( courses.size ( ) );
+    for ( auto i = 0LLU; i < courses.size ( ); i++ )
+    {
+        known [ i ] = ( ( Course const ) *courses [ i ] ).getReference ( );
+    }
+    return known;
+}
+
+RequisitesPointer Registry::resolveRequisites (
+        Reference const &reference ) const noexcept
+{
+    application.getLog ( ) << "Received request to resolve reference \""
+                           << reference << "\"" << statementDelimiter;
+    for ( RequisitesPointer const &pRequisites : requisites )
+    {
+        auto requisiteReference =
+                ( ( Requisites const ) *pRequisites ).getReference ( );
+        application.getLog ( )
+                << "Checking if \"" << requisiteReference << "\" is \""
+                << reference << "\"" << statementDelimiter;
+        if ( requisiteReference == reference )
+        {
+            return pRequisites;
+        }
+    }
+    return nullptr;
+}
+
+SemesterPointer
+        Registry::resolveSemester ( Reference const &reference ) const noexcept
+{
+    for ( SemesterPointer const &psemester : semesters )
+    {
+        if ( ( ( Semester const ) *psemester ).getReference ( ) == reference )
+        {
+            return psemester;
+        }
+    }
+    return nullptr;
+}
+
+PlanPointer Registry::resolvePlan ( Reference const &reference ) const noexcept
+{
+    for ( PlanPointer const &pplan : plans )
+    {
+        if ( ( ( Plan const ) *pplan ).getReference ( ) == reference )
+        {
+            return pplan;
+        }
+    }
+    return nullptr;
+}
+
+Registry &Registry::operator= ( Registry const &registry ) noexcept
+{
+    this->clear ( );
+    this->copy ( registry );
+    return *this;
+}
+
+Registry &Registry::operator= ( Registry &&registry ) noexcept
+{
+    this->operator= ( ( Registry & ) registry );
+    registry.clear ( );
+    return *this;
 }

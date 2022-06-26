@@ -1,27 +1,27 @@
 #pragma once
 
-//#include "Keyword.h++"
-#include "Reference.h++"
-#include "Serial.h++"
+#include <Reference.h++>
+#include <Serial.h++>
 
 #include <istream>
 
-class Referred : public Serial {
+class Referred : public Serial
+{
     Reference reference;
 protected:
-    void grabReference ( std::istream &istream ) {
-        istream >> reference;
-    }
+    Reference &getReference ( ) noexcept;
 public:
-    friend void referenceFunction ( std::stringstream & , Referred & );
-    Referred ( ) noexcept = default;
+    Referred ( ) noexcept                  = default;
     Referred ( Referred const & ) noexcept = default;
-    Referred ( Referred && ) noexcept = default;
-    Referred ( Reference const &reference ) noexcept : reference ( reference ) { }
+    Referred ( Referred && ) noexcept      = default;
+    Referred ( Reference const &reference ) noexcept : reference ( reference )
+    { }
     virtual ~Referred ( ) = default;
 
-    Reference const &getReference ( ) const noexcept { return reference; }
+    Reference const &getReference ( ) const noexcept;
 
-    Referred &operator = ( Referred const & ) noexcept = default;
-    Referred &operator = ( Referred && ) noexcept = default;
+    Referred &operator= ( Referred const & ) noexcept = default;
+    Referred &operator= ( Referred && ) noexcept      = default;
+
+    virtual void extract ( ExtractedItem const & ) override;
 };

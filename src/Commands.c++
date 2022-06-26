@@ -6,184 +6,368 @@
  * \version 1
  * \copyright Joshua Buchanan (C) 2021; MIT License
  */
-#include "Commands.h++"
 
- // we need access to the registry
-#include "Registry.h++"
-// we need access to the license
-#include "License.h"
+#include <Commands.h++>
+#include <Extracted.h++>
+#include <Keywords.h++>
+#include <License.h>
+#include <Registry.h++>
 
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 
-typedef void ( *CommandFunction ) ( int const & , char const *const *const & );
+using CommandFunction = std::function< void ( Application *, int const & ) >;
 
-/**
- * \struct Command
- * \brief A Command
- * \note Command interprets commandline arguments and switches
- */
-struct Command {
-    /**
-     * \brief the keyword this command responds to
-     */
-    char const *const keyword;
-    /**
-     * \brief the function to call if we find this keyword
-     */
-    CommandFunction   command;
+using keywords::delimiters::commandlineCourseDelimiter;
+using keywords::delimiters::statementDelimiter;
+
+struct Command
+{
+    CommandFunction command;
+    std::string     keyword;
+    std::string     description;
+    bool            priority = false;
 };
 
-
-void printLicense ( int const & , char const *const *const & );
-void printVersion ( int const & , char const *const *const & );
-void printHelping ( int const & , char const *const *const & );
-void startProgram ( int const & , char const *const *const & );
-void scanAndShowCourse ( int const & , char const *const *const & );
+std::string getLicenseDescription ( );
+std::string getVersionDescription ( );
+std::string getHelpingDescription ( );
+std::string getRunningDescription ( );
+std::string getListingDescription ( );
+std::string getVerboseDescription ( );
 
 /**
  * \brief the recognized command-line arguments
  */
-Command commands [ ] = {
-    {"--license" , &printLicense},
-    {"--version", &printVersion},
-    {"--help" , &printHelping},
-    {"--filename" , &startProgram},
-    {"--detail", &scanAndShowCourse},
+Command commands [] = {
+        { std::mem_fn ( &Application::handleLicense ),
+          "--license",
+          getLicenseDescription ( ),
+          true },
+        { std::mem_fn ( &Application::handleVersion ),
+          "--version",
+          getVersionDescription ( ),
+          true },
+        { std::mem_fn ( &Application::handleHelping ),
+          "--help",
+          getHelpingDescription ( ) },
+        { std::mem_fn ( &Application::handleRunning ),
+          "--filename",
+          getRunningDescription ( ) },
+        { std::mem_fn ( &Application::handleListing ),
+          "--detail",
+          getListingDescription ( ) },
+        { std::mem_fn ( &Application::handleVerbose ),
+          "--verbose",
+          getVerboseDescription ( ),
+          true },
 };
 
-/**
- * \function parseArgs
- * \brief Parses argc and argv
- * \param argc the amount of arguments in argv
- * \param argv an array of strings that represent our filename and our commandline
- */
-void parseArgs ( int const argc , char const *const *const argv ) {
-    std::cout << argv [ 0 ] << std::endl;
-    if ( argc < 2 ) {
-        printHelping ( argc , argv );
-    } else {
-        for ( int i = 1; i < argc; i++ ) {
-            for ( auto j = 0LLU; j < sizeof ( commands ) / sizeof ( Command ); j++ ) {
-                if ( std::string ( commands [ j ].keyword ) == argv [ i ] ) {
-                    commands [ j ].command ( argc , argv );
-                }
+Application::Application ( int const argc, char const *const *const argv )
+{
+    this->argc = argc;
+    this->argv = argv;
+
+    filename   = argv [ 0 ];
+    char slash = '/';
+    if ( filename.find ( '\\' ) != std::string::npos )
+    {
+        slash = '\\';
+    }
+    std::unsigned_integral auto position = filename.find_last_of ( slash );
+    filename                             = "." + filename.substr ( position );
+
+    reconstructedCommandline = "";
+    std::for_each ( &argv [ 0 ], &argv [ argc ], [ & ] ( auto cmd ) {
+        reconstructedCommandline += std::string { cmd } + " ";
+    } );
+
+    dummy = new std::stringstream { };
+}
+
+void Application::run ( )
+{
+    if ( argc < 2 )
+    {
+        handleHelping ( -1 );
+    } else
+    {
+        // run this loop twice. First go through everything that is
+        // "high priority" then go through everything that is not
+        // high priority.
+        for ( std::integral auto checks = 0; checks < 2; checks++ )
+        {
+            bool highPriority = false;
+            if ( checks == 0 )
+            {
+                highPriority = true;
+            }
+            for ( std::integral auto i = 1; i < argc; i++ )
+            {
+                std::for_each ( std::begin ( commands ),
+                                std::end ( commands ),
+                                [ & ] ( auto command ) {
+                                    if ( highPriority xor command.priority )
+                                    {
+                                        return;
+                                    }
+                                    if ( command.keyword == argv [ i ] )
+                                    {
+                                        command.command ( this, i );
+                                    }
+                                } );
             }
         }
     }
 }
 
-/**
- * \function printLicense
- * \brief outputs the MIT License to stdout
- */
-void printLicense ( int const & , char const *const *const & ) {
-    std::cout << LICENSE << "\n";
+std::ifstream Application::openManifest ( std::string const &s )
+{
+    return std::ifstream { s };
 }
 
-/**
- * \function printVersion
- * \brief outputs the executable name and the current version to stdout
- */
-void printVersion ( int const & , char const *const *const & ) {
-    std::cout << "prerequisite-checker version 2\n";
+void Application::handleLicense ( int const & )
+{
+    getCout ( ) << LICENSE << statementDelimiter;
 }
 
-/**
- * \function printHelping
- * \brief prints information on the program -- more specifically, program usage.
- * \param argc unused, but we need something to "pass" to printVersion
- * \param argv unused, but we need something to "pass" to printVersion
- */
-void printHelping ( int const &argc , char const *const *const &argv ) {
-    printVersion ( argc , argv );
-#ifdef __WINDOWS__
-    static char const *const filename = ".\\prerequisite-checker.exe";
-#else
-    static char const *const filename = "./prerequisite-checker";
-#endif
-    std::cout << "Usage: " << filename << " [--license] [--version] [--help] [--filename {manifest filename} | --detail {manifest filename} {course reference...}]\n";
-    std::cout << "At least one argument (the things in the square brackets) must be specified. Manifest filename refers to\n";
-    std::cout << "a manifest of where to find all the data files for the program.\n";
-    std::cout << "Course Reference refers to the acronym and number uniquely identifying the course in the data files, ex, CS 101 or UH 300\n";
+void Application::handleVersion ( int const & )
+{
+    getCout ( ) << "prerequisite-checker version 3" << statementDelimiter;
 }
 
-/**
- * \function startProgram
- * \brief loads all information into a registry and then checks all plans to see if they are valid
- * \param argc argc (the one passed to main)
- * \param argv argv (the one passed to main)
- */
-void startProgram ( int const &argc , char const *const *const &argv ) {
-    // find what "i" was.
-    auto i = 0LLU;
-    for ( ; std::string ( "--filename" ) != argv [ i ]; i++ );
-    if ( i + 1 - argc <= 0 ) {
-        std::cout << "The --filename option needs an argument.\n";
-        std::exit ( -1 );
-    } else {
-        char const *const filename = argv [ i + 1 ];
-        std::fstream file ( filename );
-        Registry registry;
-        file >> registry;
-        registry.runTests ( );
-    }
-    //std::cout << "This option is currently under construction...\n";
-    //std::cout << "The main functionality of the program will go here.\n";
-}
+void Application::handleHelping ( int const &c )
+{
+    handleVersion ( c );
 
-void scanAndShowCourse ( int const &argc , char const *const *const &argv ) {
-    auto i = 0LLU;
-    for ( ; std::string ( "--detail" ) != argv [ i ]; i++ );
-    if ( i + 1 - argc <= 0 ) {
-        std::cout << "The --detail option needs an argument.\n";
-        std::exit ( -1 );
-    } else {
-        auto listInformation = [ ] ( Registry &reg , Reference const &ref ) {
-            Course *course = reg.resolveCourse ( ref );
-            std::cout << "Details on " << ref << "\n";
-            if (!course) {
-                std::cout << "[No Details]\n\n";
-                return;
-            }
-            std::cout << "Name: " << course->getName ( ) << "\n";
-            std::cout << "Description: " << course->getDesc ( ) << "\n";
-            std::cout << "Hours: " << course->getHours ( ) << "\n";
-            std::cout << "Tags: ";
-            for ( auto i = course->begin ( ); i != course->end ( ); i++ ) {
-                std::cout << *i << "; ";
-            }
-            std::cout << "\n";
-            std::cout << "Requisites: \n";
-            std::cout << "Note, any courses on the same line will satisfy the line. All lines must be satisfied for all requisites to be met.\n";
-            for ( Requisites *pRequisites : course->resolveRequisites ( reg ) ) {
-                std::cout << pRequisites->getReference ( ) << ": ";
-                for ( auto requisite : pRequisites->getRequisites ( ) ) {
-                    std::cout << requisite.getCourse ( ) << " (" << (requisite.allowPreviously ( ) ? "P" : "") << (requisite.allowConcurrent ( ) ? "C" : "") << "); ";
+    // two modes. If argc has a command name following it, print information
+    // on that command in particular.
+
+    if ( c < 0 or c + 1 == argc )
+    {
+        getCout ( ) << "Usage: " << filename << " [commands]"
+                    << statementDelimiter;
+        getCout ( ) << "Where [commands] is at least one of: "
+                    << statementDelimiter;
+        std::for_each ( std::begin ( commands ),
+                        std::end ( commands ),
+                        [ & ] ( auto command ) {
+                            getCout ( ) << "- " << command.keyword
+                                        << statementDelimiter;
+                        } );
+    } else
+    {
+        std::string requested          = argv [ c + 1 ];
+        auto        describingFunction = [ & ] ( Command command ) {
+            if ( requested == command.keyword )
+            {
+                getCout ( ) << "Usage: " << filename << command.keyword
+                            << " {arguments}" << statementDelimiter;
+                getCout ( ) << "Description: " << command.description;
+                if ( command.description == "" )
+                {
+                    getCout ( ) << "[None Provided.]";
                 }
-                std::cout << std::endl;
+                getCout ( ) << statementDelimiter;
             }
-            std::cout << "\n\n";
         };
-        char const *const filename = argv [ i + 1 ];
-        i += 2;
-        std::fstream file ( filename );
-        Registry registry;
-        file >> registry;
-        try {
-            if ( std::string ( argv [ i ] ) == "all" ) {
-                for ( Reference reference : registry.knownCourses ( ) ) {
-                    listInformation ( registry , reference );
-                }
-            } else for ( ; i < ( unsigned ) argc; i += 2 ) { // pk since argc < 0 does not make sense.
-                Reference courseRef ( argv [ i ] , argv [ i + 1 ] );
-                listInformation ( registry , courseRef );
+
+        std::for_each ( std::begin ( commands ),
+                        std::end ( commands ),
+                        describingFunction );
+    }
+}
+
+void Application::handleRunning ( int const &c )
+{
+    std::integral auto filePosition = c + 1;
+    if ( filePosition >= argc )
+    {
+        getCout ( ) << "The --filename option needs an argument."
+                    << statementDelimiter;
+        std::exit ( -1 );
+    }
+    std::ifstream    specifiedFile = openManifest ( argv [ filePosition ] );
+    ExtractedPointer extraction    = open ( argv [ filePosition ] );
+    getLog ( ) << "Beginning extraction..." << statementDelimiter;
+    extraction->extractFrom ( specifiedFile );
+    getLog ( ) << "Extraction complete, parsing registry..."
+               << statementDelimiter;
+    Registry registry;
+    registry.parse ( *extraction );
+    getLog ( ) << "Running tests." << statementDelimiter;
+    registry.runTests ( );
+}
+
+void Application::handleListing ( int const &c )
+{
+    std::integral auto filePosition     = c + 1;
+    std::integral auto firstArgPosition = c + 2;
+    if ( filePosition >= argc )
+    {
+        getCout ( ) << "The --detail option needs at least two arguments. "
+                       "Prerequisite Checker received no arguments."
+                    << statementDelimiter;
+        std::exit ( -1 );
+    }
+    if ( firstArgPosition >= argc )
+    {
+        getCout ( ) << "The --detail option needs at least two arguments. "
+                       "Prerequisite Checker received only one argument."
+                    << statementDelimiter;
+        std::exit ( -1 );
+    }
+    std::ifstream    specifiedFile = openManifest ( argv [ filePosition ] );
+    ExtractedPointer extraction    = open ( argv [ filePosition ] );
+    getLog ( ) << "Beginning extraction..." << statementDelimiter;
+    extraction->extractFrom ( specifiedFile );
+    getLog ( ) << "Extraction complete, parsing registry..."
+               << statementDelimiter;
+    Registry registry;
+    registry.parse ( *extraction );
+
+    auto getArgument = [ & ] ( int const &index ) -> std::string {
+        return std::string { argv [ c + index ] };
+    };
+
+    bool listAll = getArgument ( 2 ) == "all";
+
+    for ( auto courseReference : registry.knownCourses ( ) )
+    {
+        getLog ( ) << "Checking if details requested for course "
+                   << courseReference.getName ( ) << statementDelimiter;
+        bool requested =
+                reconstructedCommandline.find ( courseReference.getName ( ) )
+                != std::string::npos;
+        if ( listAll or requested )
+        {
+            getLog ( ) << "Details were requested." << statementDelimiter;
+            CoursePointer course = registry.resolveCourse ( courseReference );
+
+            getCout ( ) << "Details on course " << courseReference << ": ";
+            if ( not course )
+            {
+                getCout ( ) << "[No Details]" << statementDelimiter;
+                continue;
+            } else
+            {
+                getCout ( ) << statementDelimiter;
             }
-        } catch ( std::out_of_range out_of_range ) {
-            std::cerr << "Caught out_of_range exception while processing for course reference starting around argc = " << i << "\n";
-            std::cerr << "What: " << out_of_range.what ( ) << "\n";
-            throw;
+            getCout ( ) << "Name: " << course->getName ( )
+                        << statementDelimiter;
+            getCout ( ) << "Hours: " << course->getHours ( )
+                        << statementDelimiter;
+            getCout ( ) << "Description: " << course->getDesc ( )
+                        << statementDelimiter;
+            getCout ( ) << "Tags: ";
+            for ( auto flag : *course ) { getCout ( ) << flag << "; "; }
+            getCout ( ) << statementDelimiter;
+
+            getCout ( ) << "Requisites: ";
+            auto requisites = course->resolveRequisites ( registry );
+            if ( requisites.empty ( ) )
+            {
+                getCout ( ) << "None." << statementDelimiter;
+            } else
+            {
+                getCout ( ) << " (All lines must be satisfied)"
+                            << statementDelimiter;
+                for ( auto requisitesPointer : requisites )
+                {
+                    std::string reference =
+                            ( ( Requisites const ) *requisitesPointer )
+                                    .getReference ( )
+                                    .getName ( );
+                    getCout ( ) << reference << ": ";
+                    auto requisiteList = requisitesPointer->getRequisites ( );
+                    for ( auto requisite = requisiteList.begin ( );
+                          requisite != requisiteList.end ( );
+                          requisite++ )
+                    {
+                        getCout ( ) << requisite->getCourse ( );
+                        std::string appended = " ";
+                        if ( requisite->allowConcurrent ( )
+                             or requisite->allowPreviously ( ) )
+                        {
+                            appended += "(";
+                            if ( requisite->allowPreviously ( ) )
+                            {
+                                appended += "P";
+                            }
+                            if ( requisite->allowConcurrent ( ) )
+                            {
+                                appended += "C";
+                            }
+                            appended += ") ";
+                        }
+                        getCout ( ) << appended;
+                        auto temp = requisite;
+                        if ( temp++ != requisiteList.end ( ) )
+                        {
+                            getCout ( ) << " "
+                                        << keywords::delimiters::
+                                                   requisiteCourseDelimiter
+                                        << " ";
+                        } else
+                        {
+                            getCout ( ) << statementDelimiter;
+                        }
+                    }
+                }
+            }
+            break;
+        } else
+        {
+            getLog ( ) << "Details were not requested." << statementDelimiter;
         }
     }
+}
+
+void Application::handleVerbose ( int const &argc ) { verbose = true; }
+
+std::ostream &Application::getCout ( ) const noexcept { return *cout; }
+
+std::ostream &Application::getLog ( ) const noexcept
+{
+    return verbose ? *cout : *dummy;
+}
+
+std::istream &Application::getCin ( ) const noexcept { return *cin; }
+
+std::string getLicenseDescription ( )
+{
+    return "Prints Prerequisite Checker's license." + statementDelimiter;
+}
+
+std::string getVersionDescription ( )
+{
+    return "Prints Prerequisite Checker's verison." + statementDelimiter;
+}
+
+std::string getHelpingDescription ( )
+{
+    return "Prints the usage of Prerequisite Checker and its commands."
+         + statementDelimiter;
+}
+
+std::string getRunningDescription ( )
+{
+    return "Runs the program and tests all plans found." + statementDelimiter;
+}
+
+std::string getListingDescription ( )
+{
+    return "Lists details about one or multiple courses. Passing with \"all\" "
+           "lists all known courses."
+         + statementDelimiter;
+    ;
+}
+
+std::string getVerboseDescription ( )
+{
+    return "Turns on logging for debugging purposes. For the program to "
+           "actually then do something, pass with another argument."
+         + statementDelimiter;
 }

@@ -1,12 +1,10 @@
-#include "Requisites.h++"
-
-#include "Course.h++"
-#include "ExtractionMethods.h++"
-#include "Keyword.h++"
-#include "Referred.h++"
-#include "Registry.h++"
-#include "Requisite.h++"
-#include "Plan.h++"
+#include <Course.h++>
+#include <Keywords.h++>
+#include <Plan.h++>
+#include <Referred.h++>
+#include <Registry.h++>
+#include <Requisite.h++>
+#include <Requisites.h++>
 
 #include <iostream>
 #include <istream>
@@ -14,49 +12,80 @@
 #include <string>
 #include <vector>
 
-std::istream &Requisites::extract ( std::istream &istream ) {
-    // requisites begins with a keyword: "reqs"
-    std::stringstream line;
-    std::string temp;
-    extractToKeyword ( istream , "reqs" );
-    // now, we are looking for one of two keywords: "ref" or "req" and we will end when we find "endreqs"
+using keywords::delimiters::statementDelimiter;
+using keywords::keys::req;
+using keywords::keys::reqs;
 
-    auto requisiteFunction = [ ] ( std::stringstream &is , Serial &serial ) {
-        while (!is.eof ( ) ) {
-            Requisite requisite;
-            is >> requisite;
-            ((Requisites &)serial).requisites.push_back ( requisite );
-        }
+void Requisites::extract ( ExtractedItem const &extracted )
+{
+    application.getLog ( ) << "Extracting Requisites at 0x" << ( void * ) this
+                           << statementDelimiter;
+    throwOnWrongType ( reqs, extracted );
+    Referred::extract ( extracted );
+    // extract everything...
+    std::intmax_t counter = 0;
+
+    auto generateKeyStart = [ & ] ( ) -> std::string {
+        return req + " " + std::to_string ( counter );
     };
-    
-    static Keyword keywords [ ] = {
-        Keyword ( "ref" , wrap ( referenceFunction ) ) ,
-        Keyword ( "reqs" , std::function ( requisiteFunction ) ) ,
+
+    auto hasAny = [ & ] ( ) {
+        std::string keyStart = generateKeyStart ( );
+        auto        first    = std::find_if (
+                extracted.begin ( ),
+                extracted.end ( ),
+                [ & ] ( auto t ) { return t.key.starts_with ( keyStart ); } );
+        return first != extracted.end ( );
     };
-    
-    do {
-        std::getline ( istream , temp );
-        line = std::stringstream ( temp );
-        line >> temp;
-        if ( isComment ( temp ) ) continue;
-        else for ( auto i = 0LLU; i < sizeof ( keywords ) / sizeof ( keywords [ 0 ] ); i++ ) {
-            if ( temp == keywords [ i ].keyword ) {
-                keywords [ i ].function ( line , *this );
+    for ( ; hasAny ( ); counter++ )
+    {
+        application.getLog ( ) << "\tChecking for group "
+                               << generateKeyStart ( ) << statementDelimiter;
+        // find all requisites matching this group.
+        ExtractedItem filtered;
+        std::string   keyStart = generateKeyStart ( );
+        for ( Tag tag : extracted )
+        {
+            if ( tag.key.starts_with ( keyStart ) )
+            {
+                application.getLog ( ) << "\tFound group named " << tag.key
+                                       << statementDelimiter;
+                filtered.push_back ( tag );
             }
         }
-    } while ( temp != "endreqs" );
-    return istream;
+        for ( std::intmax_t i = 0; Tag tag : filtered )
+        {
+            application.getLog ( ) << "\tParsing group named " << tag.key
+                                   << statementDelimiter;
+            Requisite found;
+            found.counter = i++;
+            found.extract ( filtered );
+            requisites.push_back ( found );
+        }
+    }
 }
 
-bool const Requisites::meetsRequisite ( Course const &course ) const noexcept {
-
-    for ( Requisite requisite : requisites ) {
-        std::cout << "Checking if " << requisite.getCourse ( ) << " is " << course.getReference ( ) << "\n";
-        if (requisite.getCourse ( ) == course.getReference ( ) ) {
-            std::cout << "Found that " << requisite.getCourse ( ) << " is " << course.getReference ( ) << "\n";
+bool const Requisites::meetsRequisite ( Course const &course ) const noexcept
+{
+    for ( Requisite requisite : requisites )
+    {
+        application.getLog ( )
+                << "Checking if " << requisite.getCourse ( ) << " is "
+                << course.getReference ( ) << statementDelimiter;
+        if ( requisite.getCourse ( ) == course.getReference ( ) )
+        {
+            application.getLog ( )
+                    << "Found that " << requisite.getCourse ( ) << " is "
+                    << course.getReference ( ) << statementDelimiter;
             return true;
         }
     }
-    std::cout << "Could not match " << course.getReference ( ) << "\n";
+    application.getLog ( ) << "Could not match " << course.getReference ( )
+                           << statementDelimiter;
     return false;
+}
+
+std::vector< Requisite > const &Requisites::getRequisites ( ) const noexcept
+{
+    return requisites;
 }

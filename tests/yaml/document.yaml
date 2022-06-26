@@ -1,0 +1,48 @@
+# This YAML document should be the entire set of information used by 
+# prerequisite checker.
+- type: &courseType course
+  ref: CH 101
+  name: General Chemistry
+  desc: >
+    Three lectures and one three-hour laboratory. Degree credit is not
+    awarded for both CH 101 and CH 100 or for both CH 101 and CH 117.
+    A survey of the fundamental facts, principles, and theories of general
+    chemistry. Usually offered in the fall, spring, and summer semesters.
+  hours: 4
+  reqs:
+    - Trigonometry for Calculus and Pre-Calculus
+  tagged:
+    - Natural Science
+- type: *courseType
+  ref: CH 102
+  name: General Chemistry
+  reqs:
+    - General Chemistry (First Semester)
+  hours: 4
+# Ensure that desc can read in a sequence correctly.
+  desc:
+    - Three lectures and one three-hour laboratory. Degree credit is not
+    - awarded for both CH 102 and CH 105 or both CH 102 and CH 118.
+    - Continuation of CH 100 or CH 101, with basic inorganic chemistry.
+    - Includes a systematic study of the elements and the structures,
+    - properties, and reactions of their compounds. Usually offered in the
+    - fall, spring, and summer semesters.
+  tagged:
+    - Natural Science
+- type: *courseType
+  ref: CS 100
+  name: CS I for Majors
+  desc: >
+    A first course in programming for students majoring in computer
+    science. Language concepts include primitives, variables, sequences,
+    function, selection, iteration and recursion. Software engineering
+    concepts include testing and debugging. System concepts include
+    directories, paths, files, and text editing.
+# Ensure that hours as a string does not crash the checker.
+  hours: '4'
+  reqs:
+    - Possibly Concurrent Calculus I and Calculus II
+    - Precalculus Mathematics
+- type: *courseType
+  ref: CS 101
+  name: CS II for Majors

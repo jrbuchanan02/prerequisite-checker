@@ -1,7 +1,8 @@
 
-#include "main.h++"
+#include <main.h++>
 
-
-int main ( int const argc , char const *const *const argv ) {
-    parseArgs ( argc , argv );
-} 
+int main ( int const argc, char const *const *const argv )
+{
+    application = Application { argc, argv };
+    application.run ( );
+}

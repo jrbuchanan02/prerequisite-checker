@@ -1,9 +1,0 @@
-course
-    ref SP 102
-    hours 4
-endcourse
-
-course
-    ref SP 201
-    hours 3
-endcourse

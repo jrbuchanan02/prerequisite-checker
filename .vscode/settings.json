@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.h++": "cpp",
+        "*.h": "c",
         "vector": "cpp",
         "string": "cpp",
         "array": "cpp",

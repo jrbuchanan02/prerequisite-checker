@@ -1,4 +1,0 @@
-course
-    ref EC 111
-    hours 3
-endcourse
